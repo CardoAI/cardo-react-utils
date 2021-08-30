@@ -6,6 +6,7 @@ export * from './dates';
 export * from './download';
 export * from './fetchData';
 export * from './formatters';
+export * from './mathematical';
 export * from './MathOp';
 export * from './prepare';
 export * from './randoms';
