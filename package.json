@@ -1,6 +1,6 @@
 {
   "name": "@cardoai/helpers",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "CardoAI helpers library",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
@@ -14,11 +14,7 @@
   },
   "author": "Cardo AI",
   "license": "MIT",
-  "dependencies": {
-    "@cardoai/constants": "^0.1.0",
-    "chroma-js": "^2.1.2",
-    "secure-ls": "^1.2.6"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@babel/core": "^7.14.3",
     "@babel/plugin-proposal-class-properties": "^7.13.0",
@@ -26,27 +22,9 @@
     "@rollup/plugin-commonjs": "^19.0.0",
     "@rollup/plugin-node-resolve": "^13.0.0",
     "babel": "^6.23.0",
-    "react-ga": "^3.3.0",
     "rollup": "^2.51.1",
     "rollup-plugin-babel": "^4.4.0",
-    "rollup-plugin-peer-deps-external": "^2.2.4",
-    "@ant-design/icons": "^4.6.2",
-    "antd": "^4.16.2",
-    "big-js": "^3.1.3",
-    "clone": "^2.1.2",
-    "moment": "^2.29.1",
-    "numbro": "^2.3.2",
-    "query-string": "^7.0.0",
-    "react-nl2br": "^1.0.2"
+    "rollup-plugin-peer-deps-external": "^2.2.4"
   },
-  "peerDependencies": {
-    "@ant-design/icons": "^4.6.2",
-    "antd": "^4.16.2",
-    "big-js": "^3.1.3",
-    "clone": "^2.1.2",
-    "moment": "^2.29.1",
-    "numbro": "^2.3.2",
-    "query-string": "^7.0.0",
-    "react-nl2br": "^1.0.2"
-  }
+  "peerDependencies": {}
 }
