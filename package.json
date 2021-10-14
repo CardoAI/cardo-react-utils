@@ -1,6 +1,6 @@
 {
   "name": "@cardoai/utils",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "CardoAI utilities library",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
@@ -15,7 +15,11 @@
   "author": "Cardo AI",
   "license": "MIT",
   "dependencies": {},
+  "peerDependencies": {
+    "axios": "^0.23.0"
+  },
   "devDependencies": {
+    "axios": "^0.23.0",
     "@babel/core": "^7.14.3",
     "@babel/plugin-proposal-class-properties": "^7.13.0",
     "@babel/preset-react": "^7.13.13",
