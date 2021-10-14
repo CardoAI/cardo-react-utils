@@ -14,17 +14,16 @@
   },
   "author": "Cardo AI",
   "license": "MIT",
-  "dependencies": {},
   "peerDependencies": {
-    "axios": "^0.23.0"
+    "axios": "^0.21.4"
   },
   "devDependencies": {
-    "axios": "^0.23.0",
     "@babel/core": "^7.14.3",
     "@babel/plugin-proposal-class-properties": "^7.13.0",
     "@babel/preset-react": "^7.13.13",
     "@rollup/plugin-commonjs": "^19.0.0",
     "@rollup/plugin-node-resolve": "^13.0.0",
+    "axios": "^0.21.4",
     "babel": "^6.23.0",
     "rollup": "^2.51.1",
     "rollup-plugin-babel": "^4.4.0",
