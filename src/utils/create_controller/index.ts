@@ -1,11 +1,15 @@
-class Controller {
+import {IClient} from "../interfaces";
 
-  constructor(client) {
+class Controller {
+  calls: any;
+  client: any;
+
+  constructor(client:IClient) {
     this.calls = {}
     this.client = client;
   }
 
-  cancelPreviousCall = (url) => {
+  cancelPreviousCall = (url:string):void => {
 
     if (!this.calls.hasOwnProperty(url))
       return;
@@ -16,18 +20,17 @@ class Controller {
       source.cancel("Operation canceled due to new request.");
   }
 
-  removeSource = (url) => {
+  removeSource = (url:string):void => {
     delete this.calls[url];
   }
 
-  createSource = (url) => {
+  createSource = (url:string):void => {
     this.calls[url] = this.client.CancelToken.source();
   }
 
-  getSource = (url) => {
+  getSource = (url:string) :any=> {
     return this.calls[url];
   }
 }
 
 export default Controller;
-

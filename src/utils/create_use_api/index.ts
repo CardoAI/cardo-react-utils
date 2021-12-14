@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-
-const createUseClientApi = ({client, controller, notification, baseURL}) =>
+import {useState, useEffect} from "react";
+import {IClientProps, ICreateUseClientApi, IOptions} from "../interfaces";
+const createUseClientApi = ({client, controller, notification, baseURL}: ICreateUseClientApi) =>
   ({
      url,
      onError,
@@ -10,12 +10,13 @@ const createUseClientApi = ({client, controller, notification, baseURL}) =>
      fetchOnMount = true,
      displayMessages = false,
      cancelPreviousCalls = true
-   }) => {
+   }: IClientProps) => {
 
-    const [clientUrl, setClientUrl] = useState(url);
-    const [data, setData] = useState(null);
-    const [loading, setLoading] = useState(false);
+    const [clientUrl, setClientUrl] = useState<string>(url);
+    const [data, setData] = useState<any>(null);
+    const [loading, setLoading] = useState<boolean>(false);
 
+    // @ts-ignore
     useEffect(async () => {
       if (fetchOnMount)
         await fetch();
@@ -25,25 +26,28 @@ const createUseClientApi = ({client, controller, notification, baseURL}) =>
       }
     }, [])
 
-    const displaySuccessMessage = () => {
+    const displaySuccessMessage = (): void => {
       if (!successMessage)
         return;
 
       notification.success(successMessage);
     };
 
-    const displayErrorMessage = () => {
+    const displayErrorMessage = (): void => {
       if (!errorMessage)
         return;
 
       notification.error(errorMessage);
     };
 
-    const getSourceUrl = () => {
+    const getSourceUrl = (): string => {
       return clientUrl.split('?')[0];
     };
 
     const fetch = async () => {
+
+      if (!clientUrl)
+        return
 
       setLoading(true);
 
@@ -56,7 +60,7 @@ const createUseClientApi = ({client, controller, notification, baseURL}) =>
 
       const source = controller.getSource(sourceUrl);
 
-      const options = {
+      const options: IOptions = {
         method: 'get',
         url: clientUrl
       };
@@ -69,26 +73,22 @@ const createUseClientApi = ({client, controller, notification, baseURL}) =>
 
       try {
         const response = await client(options);
-        setData(response.data);
+        setData(response);
 
         if (displayMessages)
           displaySuccessMessage();
 
         if (onSuccess)
-          onSuccess(response.data);
+          onSuccess(response);
 
-        return response.data
+        return response
       } catch (e) {
-
         if (!client.isCancel(e)) {
-
           if (onError)
             onError(e);
-
           if (displayMessages)
             displayErrorMessage();
         }
-
         throw e;
       } finally {
         controller.removeSource(sourceUrl);
@@ -96,17 +96,17 @@ const createUseClientApi = ({client, controller, notification, baseURL}) =>
       }
     };
 
-    const cancel = () => {
+    const cancel = (): void => {
       const sourceUrl = getSourceUrl();
       controller.cancelPreviousCall(sourceUrl);
       controller.removeSource(sourceUrl);
     };
 
-    const changeUrl = (current) => {
+    const changeUrl = (current: string): void => {
       setClientUrl(current)
     };
 
-    const reset = (cancelPrevious = false) => {
+    const reset = (cancelPrevious: boolean = false): void => {
       if (!cancelPrevious)
         cancel();
 
