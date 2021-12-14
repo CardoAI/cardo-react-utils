@@ -1,16 +1,21 @@
 {
   "compilerOptions": {
-    "outDir": "./dist/",
-    "sourceMap": true,
-    "strictNullChecks": true,
-    "module": "es6",
-    "target": "es5",
-    "allowJs": true,
+    "target": "esnext",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "jsx": "react",
     "declaration": true,
-    "moduleResolution": "node"
+    "declarationDir": "dist/types",
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
   },
-  "include": [
-    "./src/"
-  ],
-  "exclude": ["./node_modules"]
+  "exclude": ["node_modules", "dist"],
+  "include": ["src"]
 }

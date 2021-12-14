@@ -1,38 +1,58 @@
-import babel from 'rollup-plugin-babel';
-import commonjs from "@rollup/plugin-commonjs";
-import external from 'rollup-plugin-peer-deps-external';
-import { terser } from 'rollup-plugin-terser';
-import resolve from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs'
+import json from '@rollup/plugin-json'
+import resolve from '@rollup/plugin-node-resolve'
+import babel from 'rollup-plugin-babel'
+import { terser } from 'rollup-plugin-terser'
+import pkg from './package.json'
+
+const extensions = ['.js', '.jsx', '.ts', '.tsx']
 
 export default [
   {
-    input: './src/index.js',
+    input: 'src/index.ts',
+    external: [
+      ...Object.keys(pkg.dependencies || {}),
+      ...Object.keys(pkg.peerDependencies || {}),
+    ],
     output: [
       {
-        file: 'dist/index.js',
+        file: pkg.main,
         format: 'cjs',
       },
       {
-        file: 'dist/index.es.js',
-        format: 'es',
-        exports: 'named',
-      }
+        file: pkg.module,
+        format: 'esm',
+      },
     ],
     plugins: [
+      json(),
+      resolve({ extensions }),
+      commonjs(),
       babel({
-        exclude: 'node_modules/**',
-        presets: ['@babel/preset-react'],
-        plugins: ["@babel/plugin-proposal-class-properties"]
+        extensions,
+        include: ['src/**/*'],
       }),
-      commonjs({
-        include: 'node_modules/**',
-        namedExports: {
-          'node_modules/react-is/index.js': ['isFragment', 'ForwardRef']
-        }
-      }),
-      external(),
-      resolve(),
       terser(),
-    ]
-  }
-];
+    ],
+  },
+  {
+    input: 'src/index.ts',
+    output: [
+      {
+        name: 'boilerplate',
+        file: pkg.browser,
+        format: 'umd',
+      },
+    ],
+    plugins: [
+      json(),
+      resolve({ extensions }),
+      commonjs(),
+      babel({
+        extensions,
+        include: ['src/**/*'],
+      }),
+      terser(),
+    ],
+  },
+]

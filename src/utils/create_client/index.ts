@@ -20,8 +20,10 @@ const createClient = ({baseUrl, forceLogout, getToken, refreshToken}: ICreateCli
   }
 
   const attachParamsToRequest = (request: AxiosRequestConfig, token: string | any): void => {
-    if (token)
-      request.headers['Authorization'] = 'Bearer ' + token;
+    if (token) {
+      // @ts-ignore
+        request.headers['Authorization'] = 'Bearer ' + token;
+      }
   };
 
   const processQueue = (error: AxiosError | null, token: string | null = null): void => {
