@@ -16,7 +16,7 @@ interface IClient extends AxiosInstance {
 interface ICreateUseClientApi {
     client: any,
     controller: IController | Controller,
-    notification: NotificationInstance,
+    notification: NotificationInstance | NotificationInitialization,
     baseURL?: string | undefined
 }
 
@@ -26,6 +26,12 @@ interface NotificationInstance {
     info: (args: string) => void;
     warning: (param1?: string, param2?: string) => void;
     open: (args: string) => void;
+}
+
+interface NotificationInitialization {
+    error(description?:string , message?:string ):void ,
+    warning(description?: string, message?:string ):void ,
+    success(description?: string, message?:string) :void
 }
 
 interface IController {
