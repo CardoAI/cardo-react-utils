@@ -1,38 +1,41 @@
-import commonjs from '@rollup/plugin-commonjs'
-import json from '@rollup/plugin-json'
-import resolve from '@rollup/plugin-node-resolve'
 import babel from 'rollup-plugin-babel'
-import { terser } from 'rollup-plugin-terser'
-import pkg from './package.json'
-
+import resolve from 'rollup-plugin-node-resolve'
+import commonjs from 'rollup-plugin-commonjs'
+import nodeResolve from "@rollup/plugin-node-resolve";
+import nodePolyfills from 'rollup-plugin-polyfill-node';
 const extensions = ['.js', '.jsx', '.ts', '.tsx']
 
-export default [
-  {
-    input: 'src/index.ts',
-    external: [
-      ...Object.keys(pkg.dependencies || {}),
-      ...Object.keys(pkg.peerDependencies || {}),
-    ],
-    output: [
-      {
-        file: pkg.main,
-        format: 'cjs',
-      },
-      {
-        file: pkg.module,
-        format: 'esm',
-      },
-    ],
-    plugins: [
-      json(),
-      commonjs(),
-      resolve({extensions}),
-      babel({
-        extensions,
-        include: ['src/**/*'],
-      }),
-      terser(),
-    ],
-  }
-]
+const globals = {
+  react: 'React',
+  'react-dom': 'ReactDOM',
+}
+
+export default {
+  input: './src/index.ts',
+
+  output: [
+    {
+      file: './dist/index.js',
+      format: 'umd',
+      name: 'workingConfig',
+      globals,
+      sourcemap: true,
+    },
+    { file: './dist/index.module.js', format: 'es', globals, sourcemap: true },
+  ],
+  plugins: [
+    nodePolyfills(),
+    nodeResolve(),
+    resolve({ extensions }),
+    commonjs({
+      include: '**/node_modules/**',
+      namedExports: {},
+    }),
+    babel({
+      extensions,
+      include: ['src/**/*'],
+      exclude: 'node_modules/**',
+    }),
+  ],
+  external: Object.keys(globals),
+}
