@@ -26,33 +26,13 @@ export default [
     ],
     plugins: [
       json(),
-      resolve({ extensions }),
       commonjs(),
+      resolve({extensions}),
       babel({
         extensions,
         include: ['src/**/*'],
       }),
       terser(),
     ],
-  },
-  {
-    input: 'src/index.ts',
-    output: [
-      {
-        name: 'boilerplate',
-        file: pkg.browser,
-        format: 'umd',
-      },
-    ],
-    plugins: [
-      json(),
-      resolve({ extensions }),
-      commonjs(),
-      babel({
-        extensions,
-        include: ['src/**/*'],
-      }),
-      terser(),
-    ],
-  },
+  }
 ]
