@@ -1,6 +1,6 @@
 {
   "name": "@cardoai/utils",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "CardoAI utilities library",
   "bugs": {
     "url": "https://github.com/CardoAI/cardo-react-utils/issues"
@@ -72,6 +72,7 @@
     "types:watch": "npm run types:check -- --watch"
   },
   "dependencies": {
+    "@rollup/plugin-typescript": "^8.3.0",
     "rollup-plugin-commonjs": "^10.1.0"
   }
 }
