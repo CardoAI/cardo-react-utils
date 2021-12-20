@@ -3,5 +3,5 @@
     "@babel/env",
     "@babel/typescript"
   ],
-  "plugins": []
+  "plugins": ["@babel/plugin-transform-runtime"]
 }

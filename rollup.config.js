@@ -1,8 +1,9 @@
 import babel from 'rollup-plugin-babel'
 import pkg from './package.json'
-import pluginTypescript from "@rollup/plugin-typescript";
-import pluginCommonjs from "@rollup/plugin-commonjs";
-import pluginNodeResolve from "@rollup/plugin-node-resolve";
+import resolve from '@rollup/plugin-node-resolve'
+import externals from "rollup-plugin-node-externals";
+import { terser } from 'rollup-plugin-terser'
+import commonjs from "@rollup/plugin-commonjs";
 const extensions = ['.js', '.jsx', '.ts', '.tsx']
 
 export default [
@@ -14,24 +15,27 @@ export default [
     ],
     output: [
       {
+        file: pkg.main,
+        format: 'cjs',
+      },
+      {
         file: pkg.module,
-        format: "es",
-        sourcemap: "inline",
-        exports: "named",
+        format: 'es',
       },
     ],
     plugins: [
-      pluginTypescript(),
-      pluginCommonjs({
-        extensions: [".js", ".ts"],
-      }),
-      babel({
+      resolve({
         extensions,
+      }),
+      commonjs(),
+      externals({ deps: true }),
+      babel({
+        exclude: "**/node_modules/**",
+        extensions,
+        runtimeHelpers:true,
         include: ['src/**/*'],
       }),
-      pluginNodeResolve({
-        browser: false,
-      }),
+      terser()
     ],
-  }
+  },
 ]
