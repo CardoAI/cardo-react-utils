@@ -34,25 +34,5 @@ export default [
       }),
       terser(),
     ],
-  },
-  {
-    input: 'src/index.ts',
-    output: [
-      {
-        name: 'boilerplate',
-        file: pkg.browser,
-        format: 'umd',
-      },
-    ],
-    plugins: [
-      json(),
-      resolve({ extensions }),
-      commonjs(),
-      babel({
-        extensions,
-        include: ['src/**/*'],
-      }),
-      terser(),
-    ],
-  },
+  }
 ]
