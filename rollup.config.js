@@ -26,8 +26,8 @@ export default [
     ],
     plugins: [
       json(),
-      resolve({ extensions }),
       commonjs(),
+      resolve({extensions}),
       babel({
         extensions,
         include: ['src/**/*'],
