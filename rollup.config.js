@@ -20,7 +20,7 @@ export default [
       },
       {
         file: pkg.module,
-        format: 'esm',
+        format: 'es',
       },
     ],
     plugins: [
