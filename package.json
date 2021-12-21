@@ -1,6 +1,6 @@
 {
   "name": "@cardoai/utils",
-  "version": "1.0.19",
+  "version": "1.0.2",
   "description": "CardoAI utilities library",
   "bugs": {
     "url": "https://github.com/CardoAI/cardo-react-utils/issues"
@@ -40,12 +40,14 @@
     "@types/react": "^17.0.37",
     "@typescript-eslint/eslint-plugin": "^2.29.0",
     "@typescript-eslint/parser": "^2.29.0",
+    "@babel/plugin-transform-runtime": "^7.16.5",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-jest": "^23.8.2",
     "eslint-plugin-prettier": "^3.1.3",
     "husky": "^4.2.5",
     "jest": "^25.4.0",
+    "react": "latest",
     "lint-staged": "^10.1.7",
     "prettier": "^2.0.5",
     "rimraf": "^3.0.2",
@@ -77,8 +79,6 @@
     "types:watch": "npm run types:check -- --watch"
   },
   "dependencies": {
-    "@babel/plugin-transform-runtime": "^7.16.5",
-    "axios": "^0.24.0",
-    "react": "latest"
+    "axios": "^0.24.0"
   }
 }

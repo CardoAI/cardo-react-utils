@@ -28,9 +28,9 @@ export default [
         extensions,
       }),
       commonjs(),
-      externals({ deps: true }),
+      externals({ deps: false }),
       babel({
-        exclude: "**/node_modules/**",
+        exclude: 'node_modules/**',
         extensions,
         runtimeHelpers:true,
         include: ['src/**/*'],
