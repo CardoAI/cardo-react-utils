@@ -1,6 +1,6 @@
 {
   "name": "@cardoai/utils",
-  "version": "1.0.24",
+  "version": "1.0.25",
   "description": "CardoAI utilities library",
   "bugs": {
     "url": "https://github.com/CardoAI/cardo-react-utils/issues"
@@ -60,6 +60,10 @@
     "rollup-plugin-polyfill-node": "^0.8.0",
     "rollup-plugin-terser": "^5.3.0",
     "typescript": "^3.8.3",
+    "axios": "latest"
+
+  },
+  "peerDependencies": {
     "axios": "latest"
   },
   "scripts": {
