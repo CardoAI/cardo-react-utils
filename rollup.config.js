@@ -24,7 +24,6 @@ export default [
       },
     ],
     plugins: [
-      json(),
       resolve({ extensions }),
       commonjs(),
       babel({
