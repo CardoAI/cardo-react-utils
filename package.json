@@ -1,6 +1,6 @@
 {
   "name": "@cardoai/utils",
-  "version": "1.0.18",
+  "version": "1.0.19",
   "description": "CardoAI utilities library",
   "bugs": {
     "url": "https://github.com/CardoAI/cardo-react-utils/issues"
@@ -21,7 +21,8 @@
   "sideEffects": false,
   "types": "dist/types/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "devDependencies": {
     "@babel/core": "^7.9.0",
