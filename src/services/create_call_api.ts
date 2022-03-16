@@ -1,7 +1,7 @@
-import { AxiosError, AxiosResponse } from "axios";
-import { ICreateCallApiProps, ICreateUseClientApi, IOptions } from "../interfaces";
+import {AxiosError, AxiosResponse} from "axios";
+import {ICreateCallApiProps, ICreateUseClientApi, IOptions} from "./interfaces";
 
-export default ({client, controller, notification, baseURL}: ICreateUseClientApi) =>
+const createCallApi = ({client, controller, notification, baseURL}: ICreateUseClientApi) =>
   ({
      url,
      body,
@@ -10,7 +10,10 @@ export default ({client, controller, notification, baseURL}: ICreateUseClientApi
      dataType = "json",
      cancelPreviousCalls = false,
      invalidDataMessage = "Invalid Data",
-     setLoading, onSuccess, onError, onFinish,
+     setLoading,
+     onSuccess,
+     onError,
+     onFinish,
      errorMessage = "An error happened. Please Try Again!",
    }: ICreateCallApiProps) => {
 
@@ -105,4 +108,4 @@ export default ({client, controller, notification, baseURL}: ICreateUseClientApi
     });
   }
 
-
+export default createCallApi;
