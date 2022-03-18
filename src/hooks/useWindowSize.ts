@@ -14,7 +14,6 @@ function useWindowSize(): Size {
 
   React.useEffect(() => {
     function handleResize() {
-
       setWindowSize({
         width: window.innerWidth,
         height: window.innerHeight,
@@ -22,7 +21,6 @@ function useWindowSize(): Size {
     }
 
     window.addEventListener("resize", handleResize);
-
     handleResize();
 
     return () => window.removeEventListener("resize", handleResize);

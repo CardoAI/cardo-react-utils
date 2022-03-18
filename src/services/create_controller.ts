@@ -1,14 +1,12 @@
-const createClientController = ({client}: any) => {
+import {ICreateControllerParams} from "./interfaces";
+
+const createClientController = ({client}: ICreateControllerParams) => {
 
   const calls: any = {};
 
   const cancelPreviousCall = (url: string): void => {
-
-    if (!calls.hasOwnProperty(url))
-      return;
-
+    if (!calls.hasOwnProperty(url)) return;
     const source = calls[url];
-
     if (typeof source !== typeof undefined)
       source.cancel("Operation canceled due to new request.");
   }

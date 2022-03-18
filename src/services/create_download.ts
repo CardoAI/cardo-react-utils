@@ -1,12 +1,17 @@
 import {IClientDownloadOptions, IClientDownloadParams, IClientDownloadProps} from "./interfaces";
 
+declare global {
+  interface Navigator {
+    msSaveBlob: (blob: any, defaultName?: string) => any,
+  }
+}
+
 const onDownload = (data: any, filename: string, mime?: any, bom?: any) => {
 
   let blobData = (typeof bom !== 'undefined') ? [bom, data] : [data]
   let blob = new Blob(blobData, {type: mime || 'application/octet-stream'});
-  // @ts-ignore
+
   if (typeof window.navigator.msSaveBlob !== 'undefined') {
-    // @ts-ignore
     window.navigator.msSaveBlob(blob, filename);
   } else {
     let blobURL = (window.URL && window.URL.createObjectURL) ? window.URL.createObjectURL(blob) : window.webkitURL.createObjectURL(blob);
@@ -19,7 +24,6 @@ const onDownload = (data: any, filename: string, mime?: any, bom?: any) => {
     }
     document.body.appendChild(tempLink);
     tempLink.click();
-
     setTimeout(function () {
       document.body.removeChild(tempLink);
       window.URL.revokeObjectURL(blobURL);
@@ -47,16 +51,14 @@ const createClientDownload = ({client, baseURL}: IClientDownloadOptions) =>
       linkRef.remove();
     } else {
       try {
-
         const params: IClientDownloadParams = {
           ...rest,
           method: 'GET',
           responseType: 'blob',
-          headers: {...headers},
+          headers: { ...headers },
         };
 
-        if (baseURL)
-          params.baseURL = baseURL;
+        if (baseURL) params.baseURL = baseURL;
 
         client(params)
           .then((data: any) => onDownload(data, filename))

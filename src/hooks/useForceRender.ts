@@ -1,10 +1,10 @@
 import React from "react";
 
 export const useForceRender = () => {
-  const [, setTick] = React.useState(true);
+  const [, setTick] = React.useState<boolean>(true);
 
   return React.useCallback(() => {
-    setTick((v) => !v);
+    setTick((v: boolean) => !v);
   }, []);
 
 };

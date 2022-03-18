@@ -1,9 +1,7 @@
 import React from "react";
 
 const useHover = <T>(): [React.MutableRefObject<T>, boolean] => {
-
   const [value, setValue] = React.useState<boolean>(false);
-
   const ref: any = React.useRef<T | null>(null);
 
   const handleMouseOver = (): void => setValue(true);

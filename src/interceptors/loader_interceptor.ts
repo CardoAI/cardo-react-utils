@@ -1,5 +1,13 @@
-const createInterceptor = ({client, start, end}: any) => {
-  client.interceptors.request.use((config: any) => {
+import {AxiosInstance, AxiosRequestConfig, AxiosResponse} from "axios";
+
+interface LoaderInterceptorParams {
+  client: AxiosInstance,
+  start: () => void,
+  end: () => void,
+}
+
+const createInterceptor = ({client, start, end}: LoaderInterceptorParams) => {
+  client.interceptors.request.use((config: AxiosRequestConfig) => {
     start();
     return config;
   }, (error: any) => {
@@ -7,7 +15,7 @@ const createInterceptor = ({client, start, end}: any) => {
     return Promise.reject(error);
   });
 
-  client.interceptors.response.use((response: any) => {
+  client.interceptors.response.use((response: AxiosResponse) => {
     end();
     return response;
   }, (error: any) => {
@@ -17,4 +25,3 @@ const createInterceptor = ({client, start, end}: any) => {
 }
 
 export default createInterceptor;
-
