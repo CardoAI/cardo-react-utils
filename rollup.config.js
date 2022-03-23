@@ -32,7 +32,7 @@ export default [
                 extensions,
                 include: ['src/**/*'],
             }),
-            terser(),
+            terser()
         ],
     },
 ]
