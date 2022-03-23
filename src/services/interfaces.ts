@@ -103,6 +103,11 @@ interface ICreateClientParams {
     baseURL: string
 }
 
+interface ICreateClientStorageParams {
+    access: string,
+    refresh: string
+}
+
 export type {
     IClient,
     IQueryProps,
@@ -114,5 +119,6 @@ export type {
     IClientDownloadProps,
     IClientDownloadParams,
     IQueryProviderValuesProps,
-    ICreateControllerParams
+    ICreateControllerParams,
+    ICreateClientStorageParams
 }
