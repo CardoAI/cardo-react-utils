@@ -1,6 +1,6 @@
 {
   "name": "@cardoai/utils",
-  "version": "1.0.27",
+  "version": "1.0.28",
   "description": "CardoAI utilities library",
   "bugs": {
     "url": "https://github.com/CardoAI/cardo-react-utils/issues"
@@ -37,9 +37,9 @@
     "@rollup/plugin-typescript": "latest",
     "@types/react": "latest",
     "axios": "latest",
+    "query-string": "latest",
     "react": "latest",
     "react-router-dom": "latest",
-    "query-string": "latest",
     "rollup": "latest",
     "rollup-plugin-babel": "latest",
     "rollup-plugin-commonjs": "latest",
@@ -48,22 +48,25 @@
     "rollup-plugin-node-resolve": "latest",
     "rollup-plugin-polyfill-node": "latest",
     "rollup-plugin-terser": "latest",
-    "typescript": "latest"
+    "typescript": "latest",
+    "tslib": "latest"
   },
   "peerDependencies": {
     "axios": "latest",
+    "query-string": "latest",
     "react": "latest",
-    "react-router-dom": "latest",
-    "query-string": "latest"
+    "react-router-dom": "latest"
   },
   "scripts": {
-    "build": "npm run build:types && npm run build:js",
+    "build": "npm run build:js && npm run build:types",
     "build:js": "rollup -c",
-    "build:types": "tsc --emitDeclarationOnly",
+    "build:types": "tsc -d --emitDeclarationOnly --declarationDir build/types",
     "prerelease": "npm run build",
     "release": "npx standard-version",
     "start": "rollup -c -w",
     "types:check": "tsc --noEmit",
     "types:watch": "npm run types:check -- --watch"
+  },
+  "dependencies": {
   }
 }

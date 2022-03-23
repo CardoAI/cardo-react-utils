@@ -1,5 +1,11 @@
-import createErrorInterceptor from "./error";
+import assignErrorInterceptor from "./error";
+import assignLoaderInterceptor from "./loader"
+import assignSuccessInterceptor from "./success";
+import assignStartInterceptor from "./start";
 
 export {
-  createErrorInterceptor
+    assignErrorInterceptor,
+    assignLoaderInterceptor,
+    assignStartInterceptor,
+    assignSuccessInterceptor
 }
