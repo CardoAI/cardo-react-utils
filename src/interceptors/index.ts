@@ -1,4 +1,4 @@
-import createErrorInterceptor from "./error_interceptor";
+import createErrorInterceptor from "./error";
 
 export {
   createErrorInterceptor
