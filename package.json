@@ -1,6 +1,6 @@
 {
   "name": "@cardoai/utils",
-  "version": "1.0.30",
+  "version": "1.0.31",
   "description": "Utilities library",
   "bugs": {
     "url": "https://github.com/CardoAI/cardo-react-utils/issues"
@@ -48,8 +48,8 @@
     "rollup-plugin-node-resolve": "latest",
     "rollup-plugin-polyfill-node": "latest",
     "rollup-plugin-terser": "latest",
-    "typescript": "latest",
-    "tslib": "latest"
+    "tslib": "latest",
+    "typescript": "latest"
   },
   "peerDependencies": {
     "axios": "latest",
@@ -67,6 +67,5 @@
     "types:check": "tsc --noEmit",
     "types:watch": "npm run types:check -- --watch"
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }
