@@ -3,27 +3,27 @@ import {ICreateClientStorageParams} from "./interfaces";
 const createStorage = ({access = 'access', refresh = 'refresh'}: ICreateClientStorageParams) => {
 
     const storage = {
-        getAccess() {
+        getAccessToken() {
             return localStorage.getItem(access)
         },
-        setAccess(token: string) {
+        setAccessToken(token: string) {
             return localStorage.setItem(access, token)
         },
-        clearAccess() {
+        clearAccessToken() {
             return localStorage.removeItem(access)
         },
-        getRefresh() {
+        getRefreshToken() {
             return localStorage.getItem(refresh)
         },
-        setRefresh(token: string) {
+        setRefreshToken(token: string) {
             return localStorage.setItem(refresh, token)
         },
-        clearRefresh() {
+        clearRefreshToken() {
             return localStorage.removeItem(refresh)
         },
-        clearEverything() {
-            storage.clearAccess();
-            storage.clearRefresh()
+        clearTokens() {
+            storage.clearAccessToken();
+            storage.clearRefreshToken()
         }
     }
 
