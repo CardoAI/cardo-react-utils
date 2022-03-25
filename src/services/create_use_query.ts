@@ -30,9 +30,11 @@ const createUseQuery = ({client, cache, controller, notification, baseURL}: ICre
       cache.set(key, value);
     }
 
+    const queryUrl = typeof url === 'function' ? url(deps) : url;
+
     const [query, setQuery] = useState<any>(initialQuery);
     const [loading, setLoading] = useState<boolean>(false);
-    const [data, setData] = useState<any>(() => loadFromCache(getUrl()));
+    const [data, setData] = useState<any>(() => loadFromCache(queryUrl));
 
     useEffect(() => {
       if (fetchOnMount) getData();
@@ -60,16 +62,12 @@ const createUseQuery = ({client, cache, controller, notification, baseURL}: ICre
       notification.error(errorMessage);
     };
 
-    const getUrl = (params?: any): string => {
-      return typeof url === 'function' ? url(deps) : (params?.url || url);
-    }
-
     const getSourceUrl = (): string => {
-      return getUrl()?.split('?')[0];
+      return queryUrl?.split('?')[0];
     };
 
-    const getData = async (params: any = {}) => {
-      let endpoint: string = getUrl(params);
+    const getData = async () => {
+      let endpoint: string = queryUrl;
       if (!endpoint) return
 
       setLoading(true);
@@ -82,9 +80,8 @@ const createUseQuery = ({client, cache, controller, notification, baseURL}: ICre
 
       const source = controller.getSource(sourceUrl);
       if (query) {
-        const url: string = getUrl();
-        const separator = url.includes('?') ? '&' : '?';
-        endpoint = url + separator + queryString.stringify(query);
+        const separator = endpoint.includes('?') ? '&' : '?';
+        endpoint += separator + queryString.stringify(query);
       }
 
       const previous: any = loadFromCache(endpoint);
