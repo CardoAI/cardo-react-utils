@@ -1,5 +1,7 @@
 import {ICreateClientStorageParams} from "./interfaces";
 
+/*Move create Auth Storage in helpers dir since its simple func */
+
 const createStorage = ({accessKey = 'access', refreshKey = 'refresh', roleKey = 'role'}: ICreateClientStorageParams) => {
 
     const storage = {
