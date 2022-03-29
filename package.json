@@ -1,6 +1,6 @@
 {
   "name": "@cardoai/utils",
-  "version": "1.0.33",
+  "version": "1.0.37",
   "description": "Utilities library",
   "bugs": {
     "url": "https://github.com/CardoAI/cardo-react-utils/issues"
@@ -17,10 +17,9 @@
   "license": "MIT",
   "author": "CardoAI",
   "main": "dist/index.cjs",
-  "module": "dist/index.esm.js",
+  "module": "dist/index.esm",
   "sideEffects": false,
   "types": "dist/types/index.d.ts",
-  "typings": "dist/types/index.d.ts",
   "files": [
     "dist",
     "src"
@@ -61,7 +60,7 @@
   "scripts": {
     "build": "npm run build:js && npm run build:types",
     "build:js": "rollup -c",
-    "build:types": "tsc -d --emitDeclarationOnly --declarationDir build/types",
+    "build:types": "tsc -d --emitDeclarationOnly --declarationDir dist/types",
     "prerelease": "npm run build",
     "release": "npx standard-version",
     "start": "rollup -c -w",
