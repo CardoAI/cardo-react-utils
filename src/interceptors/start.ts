@@ -2,7 +2,7 @@ import {AxiosInstance, AxiosRequestConfig} from "axios";
 
 interface CreateInterceptorParams {
   client: AxiosInstance,
-  getToken: () => string,
+  getToken: () => string | null,
 }
 
 const createInterceptor = ({client, getToken}: CreateInterceptorParams) => {

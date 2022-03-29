@@ -2,9 +2,9 @@ import {AxiosInstance} from "axios";
 
 interface ErrorInterceptorParams {
   client: AxiosInstance,
-  forceLogout: () => void,
-  refreshToken: () => Promise<any>,
-  setToken: (token: string) => void,
+  closeSession: () => void,
+  updateSession: () => Promise<any>,
+  onSessionUpdate: (token: string) => void,
 }
 
 const attachTokenToRequest = (request: any, token: any) => {
@@ -20,7 +20,7 @@ const shouldIntercept = (error: any) => {
   }
 };
 
-const createInterceptor = ({client, forceLogout, refreshToken, setToken}: ErrorInterceptorParams) => {
+const createInterceptor = ({client, closeSession, updateSession, onSessionUpdate}: ErrorInterceptorParams) => {
 
   let failedRequests: any[] = [];
   let refreshingToken = false;
@@ -35,7 +35,7 @@ const createInterceptor = ({client, forceLogout, refreshToken, setToken}: ErrorI
 
   return client.interceptors.response.use(undefined, (error: any) => {
 
-    if (error.response.status === 403) forceLogout();
+    if (error.response.status === 403) closeSession();
     if (!shouldIntercept(error)) return Promise.reject(error);
     if (error.config._retry || error.config._queued) return Promise.reject(error);
 
@@ -57,15 +57,15 @@ const createInterceptor = ({client, forceLogout, refreshToken, setToken}: ErrorI
     refreshingToken = true;
 
     return new Promise((resolve, reject) => {
-      refreshToken().then((response: any) => {
+      updateSession().then((response: any) => {
         const token = response.data.access;
-        setToken(token);
+        onSessionUpdate(token);
         attachTokenToRequest(originalRequest, token);
         processQueue(null, token);
         resolve(client.request(originalRequest));
       }).catch((err: any) => {
         reject(err);
-        forceLogout();
+        closeSession();
       }).finally(() => {
         refreshingToken = false;
       });

@@ -4,7 +4,7 @@ import createCallApi from "./create_call_api";
 import createController from "./create_controller";
 import createDownload from "./create_download";
 import createUseQuery from "./create_use_query";
-import createClientStorage from "./create_client_storage";
+import createAuthStorage from "./create_auth_storage";
 
 export {
     createCache,
@@ -13,5 +13,5 @@ export {
     createController,
     createDownload,
     createUseQuery,
-    createClientStorage
+    createAuthStorage
 }

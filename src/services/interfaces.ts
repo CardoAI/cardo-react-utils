@@ -8,9 +8,9 @@ interface IClient extends AxiosInstance {
 interface ICreateUseQuery {
     client: any,
     controller: any,
-    cache: any,
     notification: NotificationInstance | NotificationInitialization,
-    baseURL?: string | undefined,
+    baseURL?: string,
+    cache?: any,
 }
 
 interface NotificationInstance {
@@ -87,7 +87,6 @@ interface IClientDownloadParams {
     responseType: string,
     headers: any,
     baseURL?: string,
-
     [x: string]: any,
 }
 
@@ -102,12 +101,13 @@ interface ICreateControllerParams {
 }
 
 interface ICreateClientParams {
-    baseURL: string
+    baseURL?: string
 }
 
 interface ICreateClientStorageParams {
-    access: string,
-    refresh: string
+    accessKey: string,
+    refreshKey: string,
+    roleKey?: string
 }
 
 export type {
