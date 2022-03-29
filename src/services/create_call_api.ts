@@ -56,13 +56,13 @@ export default ({client, cache, controller, notification, baseURL}: ICreateUseQu
          successMessage,
          method = "get",
          dataType = "json",
+         canDisplayError,
          useCache = true,
          useCacheOnly = false,
          cancelPreviousCalls = false,
          invalidDataMessage = "Invalid Data",
          setLoading, onSuccess, onError, onFinish,
          errorMessage = "An error happened. Please Try Again!",
-         canDisplayError,
      }: ICreateCallApiProps) => {
 
         const canUseCache: boolean = (method === 'get' && useCache && cache !== undefined);
@@ -75,46 +75,65 @@ export default ({client, cache, controller, notification, baseURL}: ICreateUseQu
         }
 
         const baseUrl = url.split('?')[0];
-        if (cancelPreviousCalls) cancelPreviousCallsFn(controller, baseUrl);
-        if (setLoading) setLoading(true);
+
+        if (cancelPreviousCalls)
+            cancelPreviousCallsFn(controller, baseUrl);
+
+        if (setLoading)
+            setLoading(true);
+
         const source: any = controller.getSource(baseUrl);
+
         const options: IOptions = getOptions(url, method, dataType, body, baseURL, source);
 
         return client(options).then((response: AxiosResponse) => {
-            if (successMessage) notification.success(successMessage);
-            if (onSuccess) onSuccess(response);
-            if (canUseCache) storeToCache(url, response, cache);
+            if (canUseCache)
+                storeToCache(url, response, cache);
+            if (successMessage)
+                notification.success(successMessage);
+            if (onSuccess)
+                onSuccess(response);
             return response;
         }).catch((error: AxiosError) => {
             if (error.response) {
                 const {status, data} = error.response;
-                if (onError) onError(error.response);
 
-                if (canDisplayError && !canDisplayError(status)) return;
+                if (onError)
+                    onError(error.response);
 
-                if (status === 500) {
-                    notification.error(errorMessage);
-                }
-                    // else if (status === 403) {
-                    //   notification.forbidden();
-                // }
-                else if (status === 400) {
-                    let errors: any = "";
+                if (canDisplayError && !canDisplayError(status))
+                    return;
 
-                    if (Array.isArray(data)) data.forEach(message => errors += `${message}\n`);
-                    else if (typeof data === 'object') errors = getErrorMessagesFromObject(data);
+                const isClientError = String(status).startsWith('4');
 
-                    if (Array.isArray(errors)) errors.forEach(error => notification.warning(error, invalidDataMessage));
-                    else notification.warning(errors, invalidDataMessage);
+                if (isClientError) {
 
-                } else if (status.toString().startsWith("4")) {
-                    if (data.message) notification.warning(data.message);
+                    if (status === 400) {
+
+                        let errors: any = "";
+
+                        if (Array.isArray(data))
+                            data.forEach(message => errors += `${message}\n`);
+                        else if (typeof data === 'object')
+                            errors = getErrorMessagesFromObject(data);
+
+                        if (Array.isArray(errors))
+                            errors.forEach(error => notification.warning(error, invalidDataMessage));
+                        else
+                            notification.warning(errors, invalidDataMessage);
+                    } else {
+                        if (data.message)
+                            notification.warning(data.message);
+                    }
+
                 } else {
                     notification.error(errorMessage);
                 }
             }
         }).finally(() => {
-            if (setLoading) setLoading(false);
-            if (onFinish) onFinish();
+            if (setLoading)
+                setLoading(false);
+            if (onFinish)
+                onFinish();
         });
     }
