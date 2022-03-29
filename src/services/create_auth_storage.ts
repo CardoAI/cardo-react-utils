@@ -33,9 +33,9 @@ const createStorage = ({accessKey = 'access', refreshKey = 'refresh', roleKey = 
             localStorage.removeItem(roleKey);
         },
         clearAll(): void {
+            storage.cleaRole();
             storage.clearAccessToken();
             storage.clearRefreshToken();
-            storage.cleaRole();
         },
     }
 
