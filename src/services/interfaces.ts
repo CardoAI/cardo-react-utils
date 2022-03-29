@@ -28,7 +28,6 @@ interface NotificationInitialization {
 }
 
 interface IApiParams {
-    url: (deps: any[]) => string | string,
     onError?: (param?: any) => void,
     onSuccess?: (param?: any) => void,
     successMessage?: any,
@@ -39,6 +38,7 @@ interface IApiParams {
 }
 
 interface IQueryProps extends IApiParams {
+    url: (deps: any[]) => string
     onPrepareResponse?: (param?: any) => any,
     query?: any,
     deps?: any[],
@@ -47,6 +47,7 @@ interface IQueryProps extends IApiParams {
 }
 
 interface ICreateCallApiProps extends IApiParams {
+    url: string,
     setLoading?: any,
     onFinish?: (param?: any) => void,
     body?: any,
