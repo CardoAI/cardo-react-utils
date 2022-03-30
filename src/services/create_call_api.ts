@@ -1,11 +1,20 @@
 import {AxiosResponse} from "axios";
 import {ICreateCallApiProps, ICreateUseQuery, IOptions} from "./interfaces";
 
-const getOptions = (url: string, method: string, dataType: string, body: any, baseURL: string | undefined, source: any): IOptions => {
+const getOptions = (
+  url: string,
+  method: string,
+  dataType: string,
+  body: any,
+  baseURL: string | undefined,
+  source: any,
+  onUploadProgress?: () => void
+): IOptions => {
     const options: IOptions = {
         url: url,
         method: method,
-        headers: {'Accept': 'application/json', 'Content-Type': 'application/json'}
+        headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
+        onUploadProgress: onUploadProgress,
     };
     if (dataType === 'form') options.headers['Content-Type'] = "multipart/form-data";
     if (body) options.data = body;
@@ -56,7 +65,7 @@ const displayErrorMessagesFromObject = (data: any, notification: any, invalidDat
     messages.forEach(error => notification.warning(error, invalidDataMessage));
 }
 
-const createUseQuery = ({client, cache, controller, notification, baseURL}: ICreateUseQuery) => async ({
+const createCallApi = ({client, cache, controller, notification, baseURL}: ICreateUseQuery) => async ({
          url,
          body,
          successMessage,
@@ -69,6 +78,7 @@ const createUseQuery = ({client, cache, controller, notification, baseURL}: ICre
          invalidDataMessage = "Invalid Data",
          setLoading, onSuccess, onError, onFinish,
          errorMessage = "An error happened. Please Try Again!",
+         onUploadProgress,
 }: ICreateCallApiProps): Promise<any> => {
 
     const canUseCache: boolean = (method === 'get' && useCache && cache !== undefined);
@@ -90,7 +100,7 @@ const createUseQuery = ({client, cache, controller, notification, baseURL}: ICre
 
     const source: any = controller.getSource(baseUrl);
 
-    const options: IOptions = getOptions(url, method, dataType, body, baseURL, source);
+    const options: IOptions = getOptions(url, method, dataType, body, baseURL, source, onUploadProgress);
 
     try {
         const response: AxiosResponse = await client(options);
@@ -134,4 +144,4 @@ const createUseQuery = ({client, cache, controller, notification, baseURL}: ICre
     }
 }
 
-export default createUseQuery;
+export default createCallApi;
