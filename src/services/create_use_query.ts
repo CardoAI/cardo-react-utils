@@ -18,7 +18,7 @@ const createUseQuery = ({client, cache, controller, notification, baseURL}: ICre
          displayMessages = false,
          cancelPreviousCalls = true,
          ...rest
-     }: IQueryProps) => {
+    }: IQueryProps) => {
 
         const loadFromCache = (key: string) => {
             if (!useCache || !cache || !cache.includes(key)) return;
@@ -30,11 +30,13 @@ const createUseQuery = ({client, cache, controller, notification, baseURL}: ICre
             cache.set(key, value);
         }
 
-        const queryUrl = typeof url === 'function' ? url(deps) : url;
+        const getUrl = (): string => {
+          return typeof url === 'function' ? url(deps) : url;
+        }
 
         const [query, setQuery] = useState<any>(rest.query);
         const [loading, setLoading] = useState<boolean>(false);
-        const [data, setData] = useState<any>(() => loadFromCache(queryUrl));
+        const [data, setData] = useState<any>(() => loadFromCache(getUrl()));
 
         useEffect(() => {
             if (fetchOnMount) fetch();
@@ -62,14 +64,14 @@ const createUseQuery = ({client, cache, controller, notification, baseURL}: ICre
         };
 
         const getSourceUrl = (): string => {
-            return queryUrl?.split('?')[0];
+            return getUrl()?.split('?')[0];
         };
 
         const fetch = async () => {
 
             /*Replace async await using .then callback hell */
 
-            let endpoint: string = queryUrl;
+            let endpoint: string = getUrl();
 
             if (!endpoint) return
 

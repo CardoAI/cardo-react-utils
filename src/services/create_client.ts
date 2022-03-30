@@ -1,10 +1,11 @@
 import axios from "axios";
-import {ICreateClientParams} from "./interfaces"
+import {IClient, ICreateClientParams} from "./interfaces"
 
-const createClient = ({baseURL}: ICreateClientParams) => {
-    const client = axios.create({baseURL: baseURL}) as any;
+const createClient = ({baseURL}: ICreateClientParams): IClient => {
+    const client = axios.create({baseURL: baseURL}) as IClient;
     client.isCancel = axios.isCancel;
     client.CancelToken = axios.CancelToken;
     return client;
 }
+
 export default createClient;

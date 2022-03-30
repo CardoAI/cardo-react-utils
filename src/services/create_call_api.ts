@@ -1,4 +1,4 @@
-import {AxiosError, AxiosResponse} from "axios";
+import {AxiosResponse} from "axios";
 import {ICreateCallApiProps, ICreateUseQuery, IOptions} from "./interfaces";
 
 const getOptions = (url: string, method: string, dataType: string, body: any, baseURL: string | undefined, source: any): IOptions => {
@@ -28,7 +28,14 @@ const storeToCache = (key: string, value: any, cache: any): void => {
     cache.set(key, value);
 }
 
-const getErrorMessagesFromObject = (data: any) => {
+const displayErrorMessagesFromArray = (data: any[], notification: any, invalidDataMessage: any): void => {
+    let errors: string = '';
+    // todo consider using helpers
+    data.forEach((message: any) => errors += `${message}\n`);
+    notification.warning(errors, invalidDataMessage);
+}
+
+const displayErrorMessagesFromObject = (data: any, notification: any, invalidDataMessage: any): void => {
     const messages: any[] = [];
 
     const addErrorMessage = (key: string, value: any) => {
@@ -46,11 +53,10 @@ const getErrorMessagesFromObject = (data: any) => {
         }
     });
 
-    return messages;
+    messages.forEach(error => notification.warning(error, invalidDataMessage));
 }
 
-export default ({client, cache, controller, notification, baseURL}: ICreateUseQuery) =>
-    ({
+const createUseQuery = ({client, cache, controller, notification, baseURL}: ICreateUseQuery) => async ({
          url,
          body,
          successMessage,
@@ -63,77 +69,69 @@ export default ({client, cache, controller, notification, baseURL}: ICreateUseQu
          invalidDataMessage = "Invalid Data",
          setLoading, onSuccess, onError, onFinish,
          errorMessage = "An error happened. Please Try Again!",
-     }: ICreateCallApiProps) => {
+}: ICreateCallApiProps): Promise<any> => {
 
-        const canUseCache: boolean = (method === 'get' && useCache && cache !== undefined);
+    const canUseCache: boolean = (method === 'get' && useCache && cache !== undefined);
 
-        const previous: any = canUseCache ? loadFromCache(url, cache) : undefined;
+    const previous: any = canUseCache ? loadFromCache(url, cache) : undefined;
 
-        if (previous) {
-            if (useCacheOnly) return;
-            if (onSuccess) onSuccess(previous)
-        }
-
-        const baseUrl = url.split('?')[0];
-
-        if (cancelPreviousCalls)
-            cancelPreviousCallsFn(controller, baseUrl);
-
-        if (setLoading)
-            setLoading(true);
-
-        const source: any = controller.getSource(baseUrl);
-
-        const options: IOptions = getOptions(url, method, dataType, body, baseURL, source);
-
-        return client(options).then((response: AxiosResponse) => {
-            if (canUseCache)
-                storeToCache(url, response, cache);
-            if (successMessage)
-                notification.success(successMessage);
-            if (onSuccess)
-                onSuccess(response);
-            return response;
-        }).catch((error: AxiosError) => {
-            if (error.response) {
-                const {status, data} = error.response;
-
-                if (onError)
-                    onError(error.response);
-
-                if (canDisplayError && !canDisplayError(status))
-                    return;
-
-                const isClientError = String(status).startsWith('4');
-
-                if (isClientError) {
-
-                    if (status === 400) {
-
-                        let errors: any = "";
-
-                        if (Array.isArray(data))
-                            data.forEach(message => errors += `${message}\n`);
-                        else if (typeof data === 'object')
-                            errors = getErrorMessagesFromObject(data);
-
-                        if (Array.isArray(errors))
-                            errors.forEach(error => notification.warning(error, invalidDataMessage));
-                        else
-                            notification.warning(errors, invalidDataMessage);
-                    } else {
-                        if (data.message)
-                            notification.warning(data.message);
-                    }
-
-                } else {
-                    notification.error(errorMessage);
-                }
-            }
-        }).finally(() => {
-            if (setLoading)
-                setLoading(false);
-            if (onFinish)
-                onFinish();
-        });
+    if (previous) {
+        if (useCacheOnly) return;
+        if (onSuccess) onSuccess(previous)
     }
+
+    const baseUrl = url.split('?')[0];
+
+    if (cancelPreviousCalls)
+        cancelPreviousCallsFn(controller, baseUrl);
+
+    if (setLoading)
+        setLoading(true);
+
+    const source: any = controller.getSource(baseUrl);
+
+    const options: IOptions = getOptions(url, method, dataType, body, baseURL, source);
+
+    try {
+        const response: AxiosResponse = await client(options);
+        if (canUseCache)
+            storeToCache(url, response, cache);
+        if (successMessage)
+            notification.success(successMessage);
+        if (onSuccess)
+            onSuccess(response);
+        return response;
+    } catch (error: any) {
+        if (error.response) {
+            const {status, data} = error.response;
+
+            if (onError)
+                onError(error.response);
+
+            if (canDisplayError && !canDisplayError(status))
+                return;
+
+            const isClientError = String(status).startsWith('4');
+
+            if (isClientError) {
+                if (status === 400) {
+                    if (Array.isArray(data))
+                        displayErrorMessagesFromArray(data, notification, invalidDataMessage);
+                    else if (typeof data === 'object')
+                        displayErrorMessagesFromObject(data, notification, invalidDataMessage);
+                } else {
+                    if (data.message) notification.warning(data.message);
+                }
+            } else {
+                notification.error(errorMessage);
+            }
+        }
+    } finally {
+        if (setLoading)
+            setLoading(false);
+        if (onFinish)
+            onFinish();
+    }
+}
+
+export default createUseQuery;
