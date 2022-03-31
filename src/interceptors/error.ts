@@ -3,7 +3,7 @@ import {AxiosInstance} from "axios";
 interface ErrorInterceptorParams {
     client: AxiosInstance,
     onSessionEnd: () => void,
-    updateSession: () => Promise<any>,
+    refreshSession: () => Promise<any>,
     onSessionUpdate: (token: string) => void,
 }
 
@@ -20,7 +20,7 @@ const shouldIntercept = (error: any) => {
     }
 };
 
-const createInterceptor = ({client, updateSession, onSessionUpdate, onSessionEnd}: ErrorInterceptorParams) => {
+const createInterceptor = ({client, refreshSession, onSessionUpdate, onSessionEnd}: ErrorInterceptorParams) => {
     let loadingSession = false, failedRequests: any[] = [];
 
     const processQueue = (error: any, token = null) => {
@@ -55,7 +55,7 @@ const createInterceptor = ({client, updateSession, onSessionUpdate, onSessionEnd
         loadingSession = true;
 
         return new Promise((resolve, reject) => {
-            updateSession().then((response: any) => {
+            refreshSession().then((response: any) => {
                 const token = response.data.access;
                 onSessionUpdate(token);
                 attachTokenToRequest(originalRequest, token);

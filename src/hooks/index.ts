@@ -7,7 +7,6 @@ import useInterval from "./useInterval";
 import useKeyPress from "./useKeyPress";
 import useLocalStorage from "./useLocalStroage";
 import usePagination from "./usePagination";
-import useRouter from "./useRouter";
 import useToggle from "./useToggle";
 import useDebounce from "./useDebounce";
 import useWindowSize from "./useWindowSize";
@@ -23,7 +22,6 @@ export {
     useKeyPress,
     useLocalStorage,
     usePagination,
-    useRouter,
     useToggle,
     useDebounce,
     useWindowSize

@@ -1,6 +1,6 @@
 {
   "name": "@cardoai/utils",
-  "version": "1.0.41",
+  "version": "1.0.44",
   "description": "Utilities library",
   "bugs": {
     "url": "https://github.com/CardoAI/cardo-react-utils/issues"
@@ -16,8 +16,8 @@
   },
   "license": "MIT",
   "author": "CardoAI",
-  "main": "dist/index.cjs",
-  "module": "dist/index.esm",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
   "sideEffects": false,
   "types": "dist/types/index.d.ts",
   "files": [
@@ -39,7 +39,6 @@
     "axios": "latest",
     "query-string": "latest",
     "react": "latest",
-    "react-router-dom": "latest",
     "rollup": "latest",
     "rollup-plugin-babel": "latest",
     "rollup-plugin-commonjs": "latest",
@@ -53,9 +52,8 @@
   },
   "peerDependencies": {
     "axios": "latest",
-    "query-string": "latest",
     "react": "latest",
-    "react-router-dom": "latest"
+    "query-string": "latest"
   },
   "scripts": {
     "build": "npm run build:js && npm run build:types",
