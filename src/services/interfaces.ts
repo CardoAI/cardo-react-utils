@@ -38,7 +38,7 @@ interface IApiParams {
 }
 
 interface IQueryProps extends IApiParams {
-    url: string | ((deps: any[]) => string)
+    url: string | ((deps: any[]) => string),
     onPrepareResponse?: (param?: any) => any,
     query?: any,
     deps?: any[],
