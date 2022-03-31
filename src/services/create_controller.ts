@@ -16,7 +16,8 @@ const createClientController = ({client}: ICreateControllerParams) => {
     }
 
     const createSource = (url: string): void => {
-        calls[url] = client.CancelToken.source();
+        if (client?.CancelToken?.source)
+            calls[url] = client?.CancelToken?.source();
     }
 
     const getSource = (url: string): any => {

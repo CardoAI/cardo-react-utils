@@ -1,4 +1,5 @@
-import {IClientDownloadOptions, IClientDownloadParams, IClientDownloadProps} from "./interfaces";
+import {IClientDownloadOptions, IClientDownloadProps} from "./interfaces";
+import {AxiosRequestConfig} from "axios";
 
 declare global {
   interface Navigator {
@@ -39,6 +40,7 @@ const createClientDownload = ({client, baseURL}: IClientDownloadOptions) =>
      onFinish,
      onError,
      link = false,
+     setLoading,
      ...rest
    }: IClientDownloadProps) => {
 
@@ -51,14 +53,22 @@ const createClientDownload = ({client, baseURL}: IClientDownloadOptions) =>
       linkRef.remove();
     } else {
       try {
-        const params: IClientDownloadParams = {
+        if (!client) return;
+        setLoading && setLoading(true);
+        const params: AxiosRequestConfig = {
           ...rest,
+          url: url,
           method: 'GET',
           responseType: 'blob',
-          headers: { ...headers },
+          headers: {
+            ...headers,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
         };
 
-        if (baseURL) params.baseURL = baseURL;
+        if (baseURL)
+          params.baseURL = baseURL;
 
         client(params)
           .then((data: any) => onDownload(data, filename))
@@ -66,6 +76,8 @@ const createClientDownload = ({client, baseURL}: IClientDownloadOptions) =>
 
       } catch (e) {
         onError && onError(e)
+      } finally {
+        setLoading && setLoading(false);
       }
     }
   }

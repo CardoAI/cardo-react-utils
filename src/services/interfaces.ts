@@ -1,4 +1,4 @@
-import {AxiosInstance, CancelTokenStatic} from "axios";
+import {AxiosInstance, CancelTokenStatic, Method} from "axios";
 
 interface IClient extends AxiosInstance {
     isCancel?: (param?: any) => boolean,
@@ -6,7 +6,7 @@ interface IClient extends AxiosInstance {
 }
 
 interface ICreateUseQuery {
-    client: any,
+    client: IClient,
     controller: any,
     notification: NotificationInstance | NotificationInitialization,
     baseURL?: string,
@@ -51,25 +51,15 @@ interface ICreateCallApiProps extends IApiParams {
     setLoading?: any,
     onFinish?: (param?: any) => void,
     body?: any,
-    method?: string,
+    method?: Method,
     dataType?: string,
     invalidDataMessage?: string,
     canDisplayError?: (status: number) => boolean,
     onUploadProgress?: () => void,
 }
 
-interface IOptions {
-    cancelToken?: any,
-    baseURL?: string,
-    method?: string,
-    url?: string,
-    headers?: any,
-    data?: any,
-    onUploadProgress?: () => void,
-}
-
 interface IClientDownloadOptions {
-    client?: any,
+    client?: IClient,
     baseURL?: string,
 }
 
@@ -98,7 +88,7 @@ interface IQueryProviderValuesProps {
 }
 
 interface ICreateControllerParams {
-    client: any,
+    client: IClient,
 }
 
 interface ICreateClientParams {
@@ -114,7 +104,6 @@ interface ICreateClientStorageParams {
 export type {
     IClient,
     IQueryProps,
-    IOptions,
     ICreateUseQuery,
     ICreateCallApiProps,
     ICreateClientParams,

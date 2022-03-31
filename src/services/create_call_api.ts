@@ -1,22 +1,22 @@
-import {AxiosResponse} from "axios";
-import {ICreateCallApiProps, ICreateUseQuery, IOptions} from "./interfaces";
+import {AxiosRequestConfig, AxiosResponse, Method} from "axios";
+import {ICreateCallApiProps, ICreateUseQuery} from "./interfaces";
 
 const getOptions = (
   url: string,
-  method: string,
+  method: Method,
   dataType: string,
   body: any,
   baseURL: string | undefined,
   source: any,
   onUploadProgress?: () => void
-): IOptions => {
-    const options: IOptions = {
+): AxiosRequestConfig => {
+    const options: AxiosRequestConfig = {
         url: url,
         method: method,
-        headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
         onUploadProgress: onUploadProgress,
+        headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
     };
-    if (dataType === 'form') options.headers['Content-Type'] = "multipart/form-data";
+    if (dataType === 'form' && !!options.headers) options.headers['Content-Type'] = "multipart/form-data";
     if (body) options.data = body;
     if (baseURL) options.baseURL = baseURL;
     if (source) options.cancelToken = source.token;
@@ -100,7 +100,7 @@ const createCallApi = ({client, cache, controller, notification, baseURL}: ICrea
 
     const source: any = controller.getSource(baseUrl);
 
-    const options: IOptions = getOptions(url, method, dataType, body, baseURL, source, onUploadProgress);
+    const options: AxiosRequestConfig = getOptions(url, method, dataType, body, baseURL, source, onUploadProgress);
 
     try {
         const response: AxiosResponse = await client(options);

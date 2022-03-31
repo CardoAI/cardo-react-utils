@@ -1,7 +1,8 @@
 import {useState, useEffect} from "react";
 import queryString from "query-string";
-import {IQueryProps, ICreateUseQuery, IOptions} from "./interfaces";
+import {IQueryProps, ICreateUseQuery} from "./interfaces";
 import {useDidUpdate} from "../hooks/useDidUpdate";
+import {AxiosRequestConfig} from "axios";
 
 const createUseQuery = ({client, cache, controller, notification, baseURL}: ICreateUseQuery) =>
     ({
@@ -96,7 +97,7 @@ const createUseQuery = ({client, cache, controller, notification, baseURL}: ICre
 
             if (useCacheOnly && previous) return;
 
-            const options: IOptions = {
+            const options: AxiosRequestConfig = {
                 method: 'get',
                 url: endpoint
             };
@@ -113,7 +114,7 @@ const createUseQuery = ({client, cache, controller, notification, baseURL}: ICre
                 if (onSuccess) onSuccess(response);
                 return response;
             } catch (e) {
-                if (!client.isCancel(e)) {
+                if (client.isCancel && !client.isCancel(e)) {
                     if (onError) onError(e);
                     if (displayMessages) displayErrorMessage();
                 }
