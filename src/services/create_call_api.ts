@@ -72,7 +72,7 @@ const createCallApi = ({client, cache, controller, notification, baseURL}: ICrea
          method = "get",
          dataType = "json",
          canDisplayError,
-         useCache = true,
+         useCache = false,
          useCacheOnly = false,
          cancelPreviousCalls = false,
          invalidDataMessage = "Invalid Data",

@@ -13,7 +13,7 @@ const createUseQuery = ({client, cache, controller, notification, baseURL}: ICre
          errorMessage,
          successMessage,
          onPrepareResponse,
-         useCache = true,
+         useCache = false,
          useCacheOnly = false,
          fetchOnMount = true,
          displayMessages = false,
