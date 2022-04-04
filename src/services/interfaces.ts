@@ -55,7 +55,7 @@ interface ICreateCallApiProps extends IApiParams {
     dataType?: string,
     invalidDataMessage?: string,
     canDisplayError?: (status: number) => boolean,
-    onUploadProgress?: () => void,
+    onUploadProgress?: (progressEvent: any) => void,
 }
 
 interface IClientDownloadOptions {

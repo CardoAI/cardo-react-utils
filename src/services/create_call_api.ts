@@ -8,7 +8,7 @@ const getOptions = (
   body: any,
   baseURL: string | undefined,
   source: any,
-  onUploadProgress?: () => void
+  onUploadProgress?: (progressEvent: any) => void
 ): AxiosRequestConfig => {
     const options: AxiosRequestConfig = {
         url: url,
