@@ -2,13 +2,14 @@ import {useState, useEffect} from "react";
 import queryString from "query-string";
 import {IQueryProps, ICreateUseQuery} from "./interfaces";
 import {useDidUpdate} from "../hooks/useDidUpdate";
-import {AxiosRequestConfig} from "axios";
+import axios, {AxiosRequestConfig} from "axios";
 
 const createUseQuery = ({client, cache, controller, notification, baseURL}: ICreateUseQuery) =>
     ({
          url,
          onError,
          deps = [],
+         isPublic = false,
          onSuccess,
          errorMessage,
          successMessage,
@@ -106,7 +107,7 @@ const createUseQuery = ({client, cache, controller, notification, baseURL}: ICre
             if (baseURL) options.baseURL = baseURL;
 
             try {
-                let response: any = await client(options);
+                let response: any = isPublic ? await axios.request(options) : await client(options);
                 if (onPrepareResponse) response = onPrepareResponse(response);
                 storeToCache(endpoint, response);
                 setData(response);
@@ -114,7 +115,7 @@ const createUseQuery = ({client, cache, controller, notification, baseURL}: ICre
                 if (onSuccess) onSuccess(response);
                 return response;
             } catch (e) {
-                if (client.isCancel && !client.isCancel(e)) {
+                if (!isPublic && client.isCancel && !client.isCancel(e)) {
                     if (onError) onError(e);
                     if (displayMessages) displayErrorMessage();
                 }

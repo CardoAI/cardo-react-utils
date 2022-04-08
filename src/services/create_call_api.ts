@@ -1,4 +1,4 @@
-import {AxiosRequestConfig, AxiosResponse, Method} from "axios";
+import axios, {AxiosRequestConfig, AxiosResponse, Method} from "axios";
 import {ICreateCallApiProps, ICreateUseQuery} from "./interfaces";
 
 const getOptions = (
@@ -71,6 +71,7 @@ const createCallApi = ({client, cache, controller, notification, baseURL}: ICrea
          successMessage,
          method = "get",
          dataType = "json",
+         isPublic = false,
          canDisplayError,
          useCache = false,
          useCacheOnly = false,
@@ -103,7 +104,7 @@ const createCallApi = ({client, cache, controller, notification, baseURL}: ICrea
     const options: AxiosRequestConfig = getOptions(url, method, dataType, body, baseURL, source, onUploadProgress);
 
     try {
-        const response: AxiosResponse = await client(options);
+        const response: AxiosResponse = isPublic ? await axios.request(options) : await client(options);
         if (canUseCache)
             storeToCache(url, response, cache);
         if (successMessage)

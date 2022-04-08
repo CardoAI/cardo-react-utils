@@ -28,6 +28,7 @@ interface NotificationInitialization {
 }
 
 interface IApiParams {
+    url: string | ((deps: any[]) => string),
     onError?: (param?: any) => void,
     onSuccess?: (param?: any) => void,
     successMessage?: any,
@@ -35,10 +36,10 @@ interface IApiParams {
     cancelPreviousCalls?: boolean,
     useCache?: boolean,
     useCacheOnly?: boolean,
+    isPublic?: boolean,
 }
 
 interface IQueryProps extends IApiParams {
-    url: string | ((deps: any[]) => string),
     onPrepareResponse?: (param?: any) => any,
     query?: any,
     deps?: any[],
