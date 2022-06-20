@@ -130,7 +130,11 @@ const createCallApi = ({client, cache, controller, notification, baseURL}: ICrea
                         displayErrorMessagesFromArray(data, notification, invalidDataMessage);
                     else if (typeof data === 'object')
                         displayErrorMessagesFromObject(data, notification, invalidDataMessage);
-                } else {
+                }
+                else if (status === 429) {
+                    notification.error("Too many attempts. Try again later");
+                }
+                else {
                     if (data.message) notification.warning(data.message);
                 }
             } else {
