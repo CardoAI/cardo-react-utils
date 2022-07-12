@@ -41,18 +41,18 @@ const createUseQuery = ({client, cache, controller, notification, baseURL}: ICre
         const [data, setData] = useState<any>(() => loadFromCache(getUrl()));
 
         useEffect(() => {
-            if (fetchOnMount) fetch();
+            if (fetchOnMount) (async () => await fetch())();
             return () => cancel();
         }, []);
 
         useDidUpdate(() => {
             if (deps.length === 0) return;
-            fetch();
+            (async () => await fetch())();
         }, deps);
 
         useDidUpdate(() => {
             if (!query) return;
-            fetch();
+            (async () => await fetch())();
         }, [query]);
 
         const displaySuccessMessage = () => {
@@ -70,12 +70,8 @@ const createUseQuery = ({client, cache, controller, notification, baseURL}: ICre
         };
 
         const fetch = async () => {
-
-            /*Replace async await using .then callback hell */
-
             let endpoint: string = getUrl();
-
-            if (!endpoint) return
+            if (!endpoint) return;
 
             setLoading(true);
             const sourceUrl: string = getSourceUrl();
@@ -93,7 +89,6 @@ const createUseQuery = ({client, cache, controller, notification, baseURL}: ICre
             }
 
             const previous: any = loadFromCache(endpoint);
-
             if (previous) setData(previous);
 
             if (useCacheOnly && previous) return;
