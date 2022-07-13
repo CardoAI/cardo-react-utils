@@ -32,7 +32,6 @@ interface IApiParams {
     onError?: (param?: any) => void,
     onSuccess?: (param?: any) => void,
     successMessage?: any,
-    errorMessage?: any,
     cancelPreviousCalls?: boolean,
     useCache?: boolean,
     useCacheOnly?: boolean,
@@ -54,8 +53,6 @@ interface ICreateCallApiProps extends IApiParams {
     body?: any,
     method?: Method,
     dataType?: string,
-    invalidDataMessage?: string,
-    canDisplayError?: (status: number) => boolean,
     onUploadProgress?: (progressEvent: any) => void,
 }
 

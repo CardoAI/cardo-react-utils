@@ -5,9 +5,9 @@ interface SuccessInterceptorParams {
 }
 
 const createInterceptor = ({client}: SuccessInterceptorParams) => {
-  return client.interceptors.response.use(((response: AxiosResponse) => {
-    return response.data
-  }))
+  return client.interceptors.response.use((response: AxiosResponse) => {
+    return response.data;
+  });
 }
 
 export default createInterceptor;

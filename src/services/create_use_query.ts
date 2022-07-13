@@ -11,7 +11,6 @@ const createUseQuery = ({client, cache, controller, notification, baseURL}: ICre
          deps = [],
          isPublic = false,
          onSuccess,
-         errorMessage,
          successMessage,
          onPrepareResponse,
          useCache = false,
@@ -40,9 +39,18 @@ const createUseQuery = ({client, cache, controller, notification, baseURL}: ICre
         const [loading, setLoading] = useState<boolean>(false);
         const [data, setData] = useState<any>(() => loadFromCache(getUrl()));
 
+        const invalidateQueryHandler = (event: any) => {
+            const { key } = event.data;
+            if (key === url) (async () => await fetch())();
+        }
+
         useEffect(() => {
+            window.addEventListener('message', invalidateQueryHandler);
             if (fetchOnMount) (async () => await fetch())();
-            return () => cancel();
+            return () => {
+                window.removeEventListener('message', invalidateQueryHandler);
+                cancel();
+            }
         }, []);
 
         useDidUpdate(() => {
@@ -58,11 +66,6 @@ const createUseQuery = ({client, cache, controller, notification, baseURL}: ICre
         const displaySuccessMessage = () => {
             if (!successMessage) return;
             notification.success(successMessage);
-        };
-
-        const displayErrorMessage = () => {
-            if (!errorMessage) return;
-            notification.error(errorMessage);
         };
 
         const getSourceUrl = (): string => {
@@ -109,12 +112,8 @@ const createUseQuery = ({client, cache, controller, notification, baseURL}: ICre
                 if (displayMessages) displaySuccessMessage();
                 if (onSuccess) onSuccess(response);
                 return response;
-            } catch (e) {
-                if (!isPublic && client.isCancel && !client.isCancel(e)) {
-                    if (onError) onError(e);
-                    if (displayMessages) displayErrorMessage();
-                }
-                throw e;
+            } catch (error) {
+                if (onError) onError(error);
             } finally {
                 controller.removeSource(sourceUrl);
                 setLoading(false);

@@ -38,50 +38,6 @@ const storeToCache = (key: string, value: any, cache: any): void => {
     cache.set(key, value);
 }
 
-const displayErrorMessagesFromArray = (data: any[], notification: any, invalidDataMessage: any): void => {
-    let errors: string = '';
-    data.forEach((message: any) => errors += `${message}\n`);
-    notification.warning(errors, invalidDataMessage);
-}
-
-const displayErrorMessagesFromObject = (data: any, notification: any, invalidDataMessage: any): void => {
-    const messages: any[] = [];
-
-    const addErrorMessage = (key: string, value: any) => {
-        messages.push(`${key}: ${value}`);
-    }
-    const addErrorMessages = (key: string, messageList: any) => {
-        messageList.forEach((m: any) => addErrorMessage(key, m));
-    }
-
-    Object.entries(data).forEach(([key, value]: any) => {
-        if (typeof value === 'string') addErrorMessage(key, value);
-        else if (Array.isArray(value)) addErrorMessages(key, value);
-        else if (typeof value === 'object') {
-            Object.entries(value).forEach(([innerKey, innerValue]: any) => addErrorMessages(innerKey, innerValue));
-        }
-    });
-
-    messages.forEach(error => notification.warning(error, invalidDataMessage));
-}
-
-const showError400 = (data: any, notification: any, invalidDataMessage: any) => {
-    if (Array.isArray(data))
-        displayErrorMessagesFromArray(data, notification, invalidDataMessage);
-    else if (typeof data === 'object')
-        displayErrorMessagesFromObject(data, notification, invalidDataMessage);
-}
-
-const showClientError = (status: any, data: any, notification: any, invalidDataMessage: any) => {
-    if (status === 400) {
-        showError400(data, notification, invalidDataMessage);
-    } else if (status === 429) {
-        notification.error("Too many attempts. Try again later");
-    } else {
-        if (data.message) notification.warning(data.message);
-    }
-}
-
 const createCallApi = ({client, cache, controller, notification, baseURL}: ICreateUseQuery) => async ({
      url,
      body,
@@ -89,13 +45,13 @@ const createCallApi = ({client, cache, controller, notification, baseURL}: ICrea
      method = "get",
      dataType = "json",
      isPublic = false,
-     canDisplayError,
      useCache = false,
      useCacheOnly = false,
      cancelPreviousCalls = false,
-     invalidDataMessage = "Invalid Data",
-     setLoading, onSuccess, onError, onFinish,
-     errorMessage = "An error happened. Please Try Again!",
+     setLoading,
+     onSuccess,
+     onError,
+     onFinish,
      onUploadProgress,
 }: ICreateCallApiProps): Promise<any> => {
 
@@ -122,16 +78,7 @@ const createCallApi = ({client, cache, controller, notification, baseURL}: ICrea
         if (onSuccess) onSuccess(response);
         return response;
     } catch (error: any) {
-        if (error.response == undefined) return;
-
-        const { status, data } = error.response;
-
-        if (onError) onError(error.response);
-        if (canDisplayError && !canDisplayError(status)) return;
-
-        const isClientError = String(status).startsWith('4');
-        if (isClientError) showClientError(status, data, notification, invalidDataMessage);
-        else notification.error(errorMessage);
+      if (onError) onError(error);
     } finally {
         if (setLoading) setLoading(false);
         if (onFinish) onFinish();

@@ -10,7 +10,7 @@ import usePagination from "./usePagination";
 import useToggle from "./useToggle";
 import useDebounce from "./useDebounce";
 import useWindowSize from "./useWindowSize";
-
+import { useMediator, mediatorSend } from "./useMediator";
 
 export {
     useDidMount,
@@ -24,6 +24,7 @@ export {
     usePagination,
     useToggle,
     useDebounce,
-    useWindowSize
+    useWindowSize,
+    useMediator,
+    mediatorSend,
 }
-

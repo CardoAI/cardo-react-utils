@@ -1,26 +1,96 @@
-import {AxiosInstance} from "axios";
+import { AxiosInstance } from "axios";
+
+enum ERROR_CODES {
+    INVALID_REQUEST = 400,
+    TOKEN_ERROR = 401,
+    SESSION_EXPIRED = 419,
+    TOO_MANY_ATTEMPTS = 429,
+}
 
 interface ErrorInterceptorParams {
     client: AxiosInstance,
     onSessionEnd: () => void,
     refreshSession: () => Promise<any>,
     onSessionUpdate: (token: string) => void,
+    notification: any,
+    defaultErrorMessage?: string,
 }
 
 const attachTokenToRequest = (request: any, token: any) => {
-    if (token)
-        request.headers['Authorization'] = 'Bearer ' + token;
+    if (token) request.headers['Authorization'] = 'Bearer ' + token;
 };
 
-const shouldIntercept = (error: any) => {
+const isTokenError = (error: any): boolean => {
     try {
-        return [401, 419].includes(error.response.status);
+        return [ERROR_CODES.TOKEN_ERROR, ERROR_CODES.SESSION_EXPIRED].includes(error.response.status);
     } catch (e) {
         return false;
     }
 };
 
-const createInterceptor = ({client, refreshSession, onSessionUpdate, onSessionEnd}: ErrorInterceptorParams) => {
+const isClientError = (error: any): boolean => {
+    try {
+        return String(error.response.status).startsWith('4');
+    } catch (e) {
+        return false;
+    }
+}
+
+const displayErrorMessagesFromArray = (data: any[], notification: any): void => {
+    let errors: string = '';
+    data.forEach((message: any) => errors += `${message}\n`);
+    notification.warning(errors);
+}
+
+const displayErrorMessagesFromObject = (data: any, notification: any): void => {
+    const messages: any[] = [];
+
+    const addErrorMessage = (key: string, value: any) => {
+        messages.push(`${key}: ${value}`);
+    }
+    const addErrorMessages = (key: string, messageList: any) => {
+        messageList.forEach((m: any) => addErrorMessage(key, m));
+    }
+
+    Object.entries(data).forEach(([key, value]: any) => {
+        if (typeof value === 'string') addErrorMessage(key, value);
+        else if (Array.isArray(value)) addErrorMessages(key, value);
+        else if (typeof value === 'object') {
+            Object.entries(value).forEach(([innerKey, innerValue]: any) => addErrorMessages(innerKey, innerValue));
+        }
+    });
+
+    messages.forEach(error => notification.warning(error));
+}
+
+const showError400 = (data: any, notification: any) => {
+    if (Array.isArray(data))
+        displayErrorMessagesFromArray(data, notification);
+    else if (typeof data === 'object')
+        displayErrorMessagesFromObject(data, notification);
+}
+
+const showClientError = (error: any, notification: any) => {
+    const { status, data } = error.response;
+    if (status === ERROR_CODES.INVALID_REQUEST) {
+        showError400(data, notification);
+    } else if (status === ERROR_CODES.TOO_MANY_ATTEMPTS) {
+        notification.error("Too many attempts. Try again later");
+    } else {
+        if (data.message) notification.warning(data.message);
+        if (data.detail) notification.warning(data.detail);
+    }
+}
+
+const createInterceptor = ({
+                               client,
+                               refreshSession,
+                               onSessionUpdate,
+                               onSessionEnd,
+                               notification,
+                               defaultErrorMessage = 'An error happened. Please Try Again!',
+                           }: ErrorInterceptorParams) => {
+
     let loadingSession = false, failedRequests: any[] = [];
 
     const processQueue = (error: any, token = null) => {
@@ -32,42 +102,47 @@ const createInterceptor = ({client, refreshSession, onSessionUpdate, onSessionEn
     };
 
     return client.interceptors.response.use(undefined, (error: any) => {
+        if (isTokenError(error)) {
+            if (error.config._retry || error.config._queued) return Promise.reject(error);
 
-        if (!shouldIntercept(error)) return Promise.reject(error);
+            const originalRequest = error.config;
 
-        if (error.config._retry || error.config._queued) return Promise.reject(error);
+            if (loadingSession) {
+                return new Promise(function (resolve, reject) {
+                    failedRequests.push({resolve, reject});
+                }).then(token => {
+                    originalRequest._queued = true;
+                    attachTokenToRequest(originalRequest, token);
+                    return client.request(originalRequest);
+                }).catch(err => {
+                    return Promise.reject(err);
+                });
+            }
 
-        const originalRequest = error.config;
+            originalRequest._retry = true;
+            loadingSession = true;
 
-        if (loadingSession) {
-            return new Promise(function (resolve, reject) {
-                failedRequests.push({resolve, reject});
-            }).then(token => {
-                originalRequest._queued = true;
-                attachTokenToRequest(originalRequest, token);
-                return client.request(originalRequest);
-            }).catch(err => {
-                return Promise.reject(err);
+            return new Promise((resolve, reject) => {
+                refreshSession().then((response: any) => {
+                    const token = response.data.access;
+                    onSessionUpdate(token);
+                    attachTokenToRequest(originalRequest, token);
+                    processQueue(null, token);
+                    resolve(client.request(originalRequest));
+                }).catch((err: any) => {
+                    reject(err);
+                    onSessionEnd();
+                }).finally(() => {
+                    loadingSession = false;
+                });
             });
         }
 
-        originalRequest._retry = true;
-        loadingSession = true;
+        else if (isClientError(error)) showClientError(error, notification);
 
-        return new Promise((resolve, reject) => {
-            refreshSession().then((response: any) => {
-                const token = response.data.access;
-                onSessionUpdate(token);
-                attachTokenToRequest(originalRequest, token);
-                processQueue(null, token);
-                resolve(client.request(originalRequest));
-            }).catch((err: any) => {
-                reject(err);
-                onSessionEnd();
-            }).finally(() => {
-                loadingSession = false;
-            });
-        });
+        else notification.error(defaultErrorMessage);
+
+        return Promise.reject(error);
     });
 }
 
