@@ -1,8 +1,15 @@
-import {useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import queryString from "query-string";
 import {IQueryProps, ICreateUseQuery} from "./interfaces";
 import {useDidUpdate} from "../hooks/useDidUpdate";
 import axios, {AxiosRequestConfig} from "axios";
+import { INVALIDATE_QUERY_KEY } from "./query_services";
+
+enum STATUS_ENUM {
+    OK,
+    LOADING,
+    FAILED,
+}
 
 const createUseQuery = ({client, cache, controller, notification, baseURL}: ICreateUseQuery) =>
     ({
@@ -35,13 +42,14 @@ const createUseQuery = ({client, cache, controller, notification, baseURL}: ICre
           return typeof url === 'function' ? url(deps) : url;
         }
 
-        const [query, setQuery] = useState<any>(rest.query);
-        const [loading, setLoading] = useState<boolean>(false);
         const [data, setData] = useState<any>(() => loadFromCache(getUrl()));
+        const [query, setQuery] = useState<any>(rest.query);
+        const [status, setStatus] = useState<STATUS_ENUM>(STATUS_ENUM.OK);
 
         const invalidateQueryHandler = (event: any) => {
-            const { key } = event.data;
-            if (key === url) (async () => await fetch())();
+            const { type, key } = event.data;
+            if (type !== INVALIDATE_QUERY_KEY || key !== url) return;
+            (async () => await fetch())();
         }
 
         useEffect(() => {
@@ -75,9 +83,9 @@ const createUseQuery = ({client, cache, controller, notification, baseURL}: ICre
         const fetch = async () => {
             let endpoint: string = getUrl();
             if (!endpoint) return;
-
-            setLoading(true);
             const sourceUrl: string = getSourceUrl();
+
+            setStatus(STATUS_ENUM.LOADING);
 
             if (cancelPreviousCalls) {
                 controller.cancelPreviousCall(sourceUrl);
@@ -106,6 +114,7 @@ const createUseQuery = ({client, cache, controller, notification, baseURL}: ICre
 
             try {
                 let response: any = isPublic ? await axios.request(options) : await client(options);
+                setStatus(STATUS_ENUM.OK);
                 if (onPrepareResponse) response = onPrepareResponse(response);
                 storeToCache(endpoint, response);
                 setData(response);
@@ -113,10 +122,10 @@ const createUseQuery = ({client, cache, controller, notification, baseURL}: ICre
                 if (onSuccess) onSuccess(response);
                 return response;
             } catch (error) {
+                setStatus(STATUS_ENUM.FAILED);
                 if (onError) onError(error);
             } finally {
                 controller.removeSource(sourceUrl);
-                setLoading(false);
             }
         };
 
@@ -129,7 +138,7 @@ const createUseQuery = ({client, cache, controller, notification, baseURL}: ICre
         const reset = (cancelPrevious = false) => {
             if (!cancelPrevious) cancel();
             setData(null);
-            setLoading(false);
+            setStatus(STATUS_ENUM.OK);
         };
 
         const updateQuery = (updates: any) => {
@@ -139,8 +148,8 @@ const createUseQuery = ({client, cache, controller, notification, baseURL}: ICre
         }
 
         return {
-            loading, data, setData, url, fetch,
-            reset, cancel, query, updateQuery
+            data, setData, url, fetch, reset, cancel, query, updateQuery,
+            loading: status === STATUS_ENUM.LOADING, failed: status === STATUS_ENUM.FAILED,
         }
     }
 

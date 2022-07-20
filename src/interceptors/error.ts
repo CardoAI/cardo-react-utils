@@ -7,8 +7,12 @@ enum ERROR_CODES {
     TOO_MANY_ATTEMPTS = 429,
 }
 
+interface ExtendedAxiosInstance extends AxiosInstance {
+    isCancel?: (param: any) => boolean
+}
+
 interface ErrorInterceptorParams {
-    client: AxiosInstance,
+    client: ExtendedAxiosInstance,
     onSessionEnd: () => void,
     refreshSession: () => Promise<any>,
     onSessionUpdate: (token: string) => void,
@@ -63,17 +67,13 @@ const displayErrorMessagesFromObject = (data: any, notification: any): void => {
     messages.forEach(error => notification.warning(error));
 }
 
-const showError400 = (data: any, notification: any) => {
-    if (Array.isArray(data))
-        displayErrorMessagesFromArray(data, notification);
-    else if (typeof data === 'object')
-        displayErrorMessagesFromObject(data, notification);
-}
-
 const showClientError = (error: any, notification: any) => {
     const { status, data } = error.response;
     if (status === ERROR_CODES.INVALID_REQUEST) {
-        showError400(data, notification);
+        if (Array.isArray(data))
+            displayErrorMessagesFromArray(data, notification);
+        else if (typeof data === 'object')
+            displayErrorMessagesFromObject(data, notification);
     } else if (status === ERROR_CODES.TOO_MANY_ATTEMPTS) {
         notification.error("Too many attempts. Try again later");
     } else {
@@ -102,6 +102,9 @@ const createInterceptor = ({
     };
 
     return client.interceptors.response.use(undefined, (error: any) => {
+
+        if (!!client.isCancel && client.isCancel(error)) return;
+
         if (isTokenError(error)) {
             if (error.config._retry || error.config._queued) return Promise.reject(error);
 
