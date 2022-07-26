@@ -1,5 +1,5 @@
 import axios, {AxiosRequestConfig, AxiosResponse, Method} from "axios";
-import {ICreateCallApiProps, ICreateUseQuery} from "./interfaces";
+import {ICallApiParams, ICreateApiParams} from "./interfaces";
 
 const getOptions = (
   url: string,
@@ -38,51 +38,55 @@ const storeToCache = (key: string, value: any, cache: any): void => {
     cache.set(key, value);
 }
 
-const createCallApi = ({client, cache, controller, notification, baseURL}: ICreateUseQuery) => async ({
-     url,
-     body,
-     successMessage,
-     method = "get",
-     dataType = "json",
-     isPublic = false,
-     useCache = false,
-     useCacheOnly = false,
-     cancelPreviousCalls = false,
-     setLoading,
-     onSuccess,
-     onError,
-     onFinish,
-     onUploadProgress,
-}: ICreateCallApiProps): Promise<any> => {
+const createCallApi = (createParams: ICreateApiParams) => async (params: ICallApiParams): Promise<any> => {
 
-    const canUseCache: boolean = (method === 'get' && useCache && cache !== undefined);
-    const previous: any = canUseCache ? loadFromCache(url, cache) : undefined;
+  const { client, cache, controller, notification, baseURL } = createParams;
 
-    if (previous) {
-        if (useCacheOnly) return;
-        if (onSuccess) onSuccess(previous);
-    }
+  const {
+    url,
+    body,
+    onError,
+    onFinish,
+    onSuccess,
+    setLoading,
+    successMessage,
+    method = "get",
+    onUploadProgress,
+    isPublic = false,
+    useCache = false,
+    dataType = "json",
+    useCacheOnly = false,
+    cancelPreviousCalls = false,
+  } = params;
 
-    const baseUrl = url.split('?')[0];
+  const canUseCache: boolean = (method === 'get' && useCache && cache !== undefined);
+  const previous: any = canUseCache ? loadFromCache(url, cache) : undefined;
 
-    if (cancelPreviousCalls) cancelPreviousCallsFn(controller, baseUrl);
-    if (setLoading) setLoading(true);
+  if (previous) {
+    if (useCacheOnly) return;
+    if (onSuccess) onSuccess(previous);
+  }
 
-    const source: any = controller.getSource(baseUrl);
-    const options: AxiosRequestConfig = getOptions(url, method, dataType, body, baseURL, source, onUploadProgress);
+  const baseUrl = url.split('?')[0];
 
-    try {
-        const response: AxiosResponse = isPublic ? await axios.request(options) : await client(options);
-        if (canUseCache) storeToCache(url, response, cache);
-        if (successMessage) notification.success(successMessage);
-        if (onSuccess) onSuccess(response);
-        return response;
-    } catch (error: any) {
-      if (onError) onError(error);
-    } finally {
-        if (setLoading) setLoading(false);
-        if (onFinish) onFinish();
-    }
+  if (cancelPreviousCalls) cancelPreviousCallsFn(controller, baseUrl);
+  if (setLoading) setLoading(true);
+
+  const source: any = controller.getSource(baseUrl);
+  const options: AxiosRequestConfig = getOptions(url, method, dataType, body, baseURL, source, onUploadProgress);
+
+  try {
+    const response: AxiosResponse = isPublic ? await axios.request(options) : await client(options);
+    if (canUseCache) storeToCache(url, response, cache);
+    if (successMessage) notification.success(successMessage);
+    if (onSuccess) onSuccess(response);
+    return response;
+  } catch (error: any) {
+    if (onError) onError(error);
+  } finally {
+    if (setLoading) setLoading(false);
+    if (onFinish) onFinish();
+  }
 }
 
 export default createCallApi;
