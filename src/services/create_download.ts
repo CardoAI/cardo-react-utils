@@ -41,12 +41,14 @@ const createClientDownload = ({client, baseURL}: IClientDownloadOptions) =>
      onError,
      link = false,
      setLoading,
+     target,
      ...rest
    }: IClientDownloadProps) => {
 
     if (link) {
       let linkRef = document.createElement("a");
       linkRef.setAttribute('download', filename);
+      if (target) linkRef.setAttribute('target', target);
       linkRef.href = url;
       document.body.appendChild(linkRef);
       linkRef.click();

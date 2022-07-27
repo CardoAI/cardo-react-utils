@@ -68,6 +68,7 @@ interface IClientDownloadProps {
   onFinish?: () => void,
   onError?: (param?: any) => void,
   link?: boolean,
+  target?: string,
   [key: string]: any,
 }
 
