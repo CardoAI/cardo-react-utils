@@ -31,7 +31,7 @@ interface IApiParams {
   url: string | ((deps: any[]) => string),
   onError?: (param?: any) => void,
   onSuccess?: (param?: any) => void,
-  successMessage?: any,
+  successMessage?: string,
   cancelPreviousCalls?: boolean,
   useCache?: boolean,
   useCacheOnly?: boolean,
@@ -48,11 +48,11 @@ interface IUseQueryParams extends IApiParams {
 
 interface ICallApiParams extends IApiParams {
   url: string,
-  setLoading?: any,
+  setLoading?: (loading: boolean) => void,
   onFinish?: (param?: any) => void,
   body?: any,
   method?: Method,
-  dataType?: string,
+  dataType?: 'json' | 'form',
   onUploadProgress?: (progressEvent: any) => void,
 }
 

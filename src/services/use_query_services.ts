@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import queryString from "query-string";
 import {IUseQueryParams, ICreateApiParams} from "./interfaces";
 import {useDidUpdate} from "../hooks/useDidUpdate";
@@ -56,6 +56,7 @@ const createUseQuery = (createParams: ICreateApiParams) => (params: IUseQueryPar
   const [data, setData] = useState<any>(() => loadFromCache(getUrl()));
   const [query, setQuery] = useState<any>(rest.query);
   const [status, setStatus] = useState<STATUS_ENUM>(STATUS_ENUM.OK);
+  const isMounted = useRef<boolean>(true);
 
   const invalidateQueryHandler = (event: any) => {
     const { type, key } = event.data;
@@ -67,6 +68,7 @@ const createUseQuery = (createParams: ICreateApiParams) => (params: IUseQueryPar
     window.addEventListener('message', invalidateQueryHandler);
     if (fetchOnMount) (async () => await fetch())();
     return () => {
+      isMounted.current = false;
       window.removeEventListener('message', invalidateQueryHandler);
       cancel();
     }
@@ -96,8 +98,6 @@ const createUseQuery = (createParams: ICreateApiParams) => (params: IUseQueryPar
     if (!endpoint) return;
     const sourceUrl: string = getSourceUrl();
 
-    setStatus(STATUS_ENUM.LOADING);
-
     if (cancelPreviousCalls) {
       controller.cancelPreviousCall(sourceUrl);
       controller.createSource(sourceUrl);
@@ -124,7 +124,9 @@ const createUseQuery = (createParams: ICreateApiParams) => (params: IUseQueryPar
     if (baseURL) options.baseURL = baseURL;
 
     try {
+      setStatus(STATUS_ENUM.LOADING);
       let response: any = isPublic ? await axios.request(options) : await client(options);
+      if (!isMounted.current) return;
       setStatus(STATUS_ENUM.OK);
       if (onPrepareResponse) response = onPrepareResponse(response);
       storeToCache(endpoint, response);
