@@ -1,3 +1,4 @@
+import React from "react";
 import {AxiosInstance, CancelTokenStatic, Method} from "axios";
 
 interface IClient extends AxiosInstance {
@@ -28,9 +29,10 @@ interface NotificationInitialization {
 }
 
 interface IApiParams {
-  url: string | ((deps: any[]) => string),
+  url: string | (() => string),
   onError?: (param?: any) => void,
   onSuccess?: (param?: any) => void,
+  onFinish?: () => void,
   successMessage?: string,
   cancelPreviousCalls?: boolean,
   useCache?: boolean,
@@ -39,21 +41,37 @@ interface IApiParams {
 }
 
 interface IUseQueryParams extends IApiParams {
-  onPrepareResponse?: (param?: any) => any,
   query?: any,
   deps?: any[],
   fetchOnMount?: boolean,
   displayMessages?: boolean,
+  onPrepareResponse?: (param?: any) => any,
 }
 
 interface ICallApiParams extends IApiParams {
   url: string,
-  setLoading?: (loading: boolean) => void,
-  onFinish?: (param?: any) => void,
   body?: any,
   method?: Method,
   dataType?: 'json' | 'form',
+  setLoading?: (loading: boolean) => void,
   onUploadProgress?: (progressEvent: any) => void,
+}
+
+interface IUseQuery {
+  data: any,
+  query: any,
+  url: string,
+  failed: boolean,
+  loading: boolean,
+  fetch: () => void,
+  cancel: () => void,
+  setData: React.Dispatch<any>,
+  updateQuery: (updates: any) => void,
+  reset: (cancelPrevious: boolean) => void,
+}
+
+interface IQueryServices {
+  invalidateQuery: (url: string) => void
 }
 
 interface IClientDownloadOptions {
@@ -96,6 +114,8 @@ interface ICreateClientStorageParams {
 
 export type {
   IClient,
+  IUseQuery,
+  IQueryServices,
   ICallApiParams,
   IUseQueryParams,
   ICreateApiParams,
