@@ -1,16 +1,16 @@
 import { useState, useEffect, useRef } from "react";
 import queryString from "query-string";
+import axios, { AxiosRequestConfig } from "axios";
+import { useDidUpdate } from "../hooks/useDidUpdate";
 import { IUseQueryParams, ICreateApiParams, IQueryServices, IUseQuery } from "./interfaces";
-import {useDidUpdate} from "../hooks/useDidUpdate";
-import axios, {AxiosRequestConfig} from "axios";
 
-enum STATUS_ENUM {
+enum REQUEST_STATUS {
   OK,
   LOADING,
   FAILED,
 }
 
-const INVALIDATE_QUERY_KEY: string = 'invalidate_query';
+const INVALIDATE_QUERY_KEY: string = 'invalidate_query_event';
 
 const createUseQuery = (createParams: ICreateApiParams) => (params: IUseQueryParams): IUseQuery => {
 
@@ -33,16 +33,6 @@ const createUseQuery = (createParams: ICreateApiParams) => (params: IUseQueryPar
     cancelPreviousCalls = true,
   } = params;
 
-  const loadFromCache = (key: string) => {
-    if (!useCache || !cache || !cache.includes(key)) return;
-    return cache.get(key);
-  };
-
-  const storeToCache = (key: string, value: any) => {
-    if (!useCache || !cache) return;
-    cache.set(key, value);
-  }
-
   const getUrl = (): string => {
     return typeof url === 'function' ? url() : url;
   }
@@ -51,19 +41,35 @@ const createUseQuery = (createParams: ICreateApiParams) => (params: IUseQueryPar
     return getUrl()?.split('?')[0];
   };
 
-  const [data, setData] = useState<any>(() => loadFromCache(getUrl()));
-  const [queryState, setQueryState] = useState<any>(query);
-  const [status, setStatus] = useState<STATUS_ENUM>(() => fetchOnMount ? STATUS_ENUM.LOADING : STATUS_ENUM.OK);
-  const isMounted = useRef<boolean>(true);
+  const loadFromCache = () => {
+    const key = getQueryIdentifier();
+    if (!useCache || !cache || !cache.includes(key)) return;
+    return cache.get(key);
+  };
 
-  const invalidateQueryHandler = (event: any) => {
-    if (event.data.type !== INVALIDATE_QUERY_KEY || event.data.useQueryId !== getQueryIdentifier()) return;
-    (async () => await fetch())();
+  const storeToCache = (value: any) => {
+    const key = getQueryIdentifier();
+    if (!useCache || !cache) return;
+    cache.set(key, value);
   }
 
+  const isMounted = useRef<boolean>(true);
+  const [data, setData] = useState<any>(() => loadFromCache());
+  const [queryState, setQueryState] = useState<any>(query);
+  const [requestStatus, setRequestStatus] = useState<REQUEST_STATUS>(() => {
+    return fetchOnMount ? REQUEST_STATUS.LOADING : REQUEST_STATUS.OK;
+  });
+
   useEffect(() => {
-    window.addEventListener('message', invalidateQueryHandler);
     if (fetchOnMount) (async () => await fetch())();
+
+    const invalidateQueryHandler = (event: any) => {
+      if (event.data.type !== INVALIDATE_QUERY_KEY || event.data.useQueryIdentifier !== getQueryIdentifier()) return;
+      (async () => await fetch())();
+    }
+
+    window.addEventListener('message', invalidateQueryHandler);
+
     return () => {
       isMounted.current = false;
       window.removeEventListener('message', invalidateQueryHandler);
@@ -104,32 +110,31 @@ const createUseQuery = (createParams: ICreateApiParams) => (params: IUseQueryPar
       endpoint += separator + queryString.stringify(queryState);
     }
 
-    const previous: any = loadFromCache(endpoint);
+    const previous: any = loadFromCache();
     if (previous) setData(previous);
-
     if (useCacheOnly && previous) return;
 
     const options: AxiosRequestConfig = {
+      url: endpoint,
       method: 'get',
-      url: endpoint
     };
 
     if (source) options.cancelToken = source.token;
     if (baseURL) options.baseURL = baseURL;
 
     try {
-      setStatus(STATUS_ENUM.LOADING);
+      setRequestStatus(REQUEST_STATUS.LOADING);
       let response: any = isPublic ? await axios.request(options) : await client(options);
       if (!isMounted.current) return;
-      setStatus(STATUS_ENUM.OK);
+      setRequestStatus(REQUEST_STATUS.OK);
       if (onPrepareResponse) response = onPrepareResponse(response);
-      storeToCache(endpoint, response);
+      storeToCache(response);
       setData(response);
       if (displayMessages) displaySuccessMessage();
       if (onSuccess) onSuccess(response);
       return response;
     } catch (error) {
-      setStatus(STATUS_ENUM.FAILED);
+      setRequestStatus(REQUEST_STATUS.FAILED);
       if (onError) onError(error);
     } finally {
       if (onFinish) onFinish();
@@ -146,7 +151,7 @@ const createUseQuery = (createParams: ICreateApiParams) => (params: IUseQueryPar
   const reset = (cancelPrevious = false) => {
     if (!cancelPrevious) cancel();
     setData(null);
-    setStatus(STATUS_ENUM.OK);
+    setRequestStatus(REQUEST_STATUS.OK);
   };
 
   const updateQuery = (updates: any) => {
@@ -164,8 +169,8 @@ const createUseQuery = (createParams: ICreateApiParams) => (params: IUseQueryPar
     updateQuery,
     url: getUrl(),
     query: queryState,
-    failed: status === STATUS_ENUM.FAILED,
-    loading: status === STATUS_ENUM.LOADING,
+    failed: requestStatus === REQUEST_STATUS.FAILED,
+    loading: requestStatus === REQUEST_STATUS.LOADING,
   }
 }
 
@@ -174,11 +179,11 @@ export default createUseQuery;
 const invalidateQuery = (baseUrl: string) => {
   window.postMessage({
     type: INVALIDATE_QUERY_KEY,
-    useQueryId: baseUrl,
+    useQueryIdentifier: baseUrl,
   });
 }
 
-export const queryServices: IQueryServices = {
+export const QueryServices: IQueryServices = {
   invalidateQuery,
   // todo implement the query services below
   // getQueryData: (key: string) => any,

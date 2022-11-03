@@ -11,7 +11,8 @@ import usePrevious from "./usePrevious";
 import useToggle from "./useToggle";
 import useDebounce from "./useDebounce";
 import useWindowSize from "./useWindowSize";
-import { useMediator, mediatorSend } from "./useMediator";
+import Mediator from "./useMediator";
+import MessageEvent from "./useEvent";
 
 export {
     useDidMount,
@@ -27,6 +28,6 @@ export {
     useToggle,
     useDebounce,
     useWindowSize,
-    useMediator,
-    mediatorSend,
-}
+    Mediator,
+    MessageEvent,
+};
