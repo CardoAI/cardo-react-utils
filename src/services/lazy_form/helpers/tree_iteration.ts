@@ -1,18 +1,5 @@
 import { isField } from "./type_checkers";
-
-const cloneEnhancedArr = (enhancedArr: any) => {
-  const arr: any[] = [];
-  Object.defineProperty(arr, 'addField', { enumerable: false, value: enhancedArr.addField });
-  Object.defineProperty(arr, 'removeField', { enumerable: false, value: enhancedArr.removeField });
-  return arr;
-}
-
-const cloneEnhancedObj = (enhancedObj: any) => {
-  const obj: any = {};
-  Object.defineProperty(obj, 'createField', { enumerable: false, value: enhancedObj.createField });
-  Object.defineProperty(obj, 'deleteField', { enumerable: false, value: enhancedObj.deleteField });
-  return obj;
-}
+import { cloneEnhancedArr, cloneEnhancedObj } from "./enhanced_data_types";
 
 export const formMap = (ojb: any, fieldCallback: (field: any) => any) => {
   if (isField(ojb)) {
@@ -51,4 +38,49 @@ export const formForEach = (
     for (const propKey in obj)
       formForEach(obj[propKey], fieldCallback, propKey, getUpdatedParents(key, parents));
   }
+}
+
+export interface FlatValue {
+  key: string | number,
+  value: any,
+  parents: (string | number)[]
+}
+
+const isCurrentParentArray = (nextParent: string | number) => {
+  return typeof nextParent === 'number';
+}
+
+export const flatValuesToTree = (flatValues: FlatValue[], isArray: boolean) => {
+  // loop through flatValues and add fields to the result by their parents as path.
+  const result = isArray ? [] : {};
+  let pointer: any = result;
+
+  // we need this to store array keys so that the result doesn't have empty values on arrays: [accumulatedParents]: 0
+  const arrayKeys: any = {};
+
+  for (const field of flatValues) {
+    let accumulatedParents = ''; // this will serve as array element id (instead of index number)
+
+    for (let idx = 0; idx < field.parents.length; idx++) {
+      let currentParent = field.parents[idx];
+      accumulatedParents += currentParent;
+
+      // if key is array index, get the correct key from arrayKeys object
+      if (typeof currentParent === 'number') {
+        if (arrayKeys[accumulatedParents] === undefined) arrayKeys[accumulatedParents] = pointer.length;
+        currentParent = arrayKeys[accumulatedParents];
+      }
+
+      // create path if it doesn't exist
+      if (pointer[currentParent] === undefined)
+        pointer[currentParent] = isCurrentParentArray(field.parents[idx + 1]) ? [] : {};
+
+      pointer = pointer[currentParent]; // shift pointer to next level
+    }
+
+    pointer[field.key] = field.value; // assign key and value
+    pointer = result; // set pointer back to root
+  }
+
+  return result;
 }

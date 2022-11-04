@@ -94,3 +94,17 @@ export const enhancedObject = (
 
   return obj;
 }
+
+export const cloneEnhancedArr = (enhancedArr: any) => {
+  const arr: any[] = [];
+  Object.defineProperty(arr, 'addField', { enumerable: false, value: enhancedArr.addField });
+  Object.defineProperty(arr, 'removeField', { enumerable: false, value: enhancedArr.removeField });
+  return arr;
+}
+
+export const cloneEnhancedObj = (enhancedObj: any) => {
+  const obj: any = {};
+  Object.defineProperty(obj, 'createField', { enumerable: false, value: enhancedObj.createField });
+  Object.defineProperty(obj, 'deleteField', { enumerable: false, value: enhancedObj.deleteField });
+  return obj;
+}

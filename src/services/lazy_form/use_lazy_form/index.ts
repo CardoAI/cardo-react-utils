@@ -1,23 +1,10 @@
 import React  from 'react';
 import createField from "../field_builder";
-import { lazyField, enhancedArray, enhancedObject } from "./enhanced_data_types";
-import { formForEach, formMap, isFile } from "../helpers";
+import { lazyField, enhancedArray, enhancedObject, formForEach, formMap, flatValuesToTree, FlatValue } from "../helpers";
 
 //#region GET VALUES
 
-//#region JSON VALUES
-
-interface FlatValue {
-  key: string | number,
-  value: any,
-  parents: (string | number)[]
-}
-
-const isCurrentParentArray = (nextParent: string | number) => {
-  return typeof nextParent === 'number';
-}
-
-const getValuesAsJson = (form: any, filter?: (value: any, name: string) => boolean) => {
+const getFormValues = (form: any, filter?: (value: any, name: string) => boolean) => {
   // put all fields (with its key and parents) on an array: { key: string, value: any, parents: string[] }
   const flatValues: FlatValue[] = [];
 
@@ -26,80 +13,8 @@ const getValuesAsJson = (form: any, filter?: (value: any, name: string) => boole
     flatValues.push({ key, value: field.value, parents });
   });
 
-  // loop through flatValues and add fields to the result by their parents as path.
-  const result = Array.isArray(form) ? [] : {};
-  let pointer: any = result;
-
-  // we need this to store array keys so that the result doesn't have empty values on arrays: [accumulatedParents]: 0
-  const arrayKeys: any = {};
-
-  for (const field of flatValues) {
-    let accumulatedParents = ''; // this will serve as array element id (instead of index number)
-
-    for (let idx = 0; idx < field.parents.length; idx++) {
-      let currentParent = field.parents[idx];
-      accumulatedParents += currentParent;
-
-      // if key is array index, get the correct key from arrayKeys object
-      if (typeof currentParent === 'number') {
-        if (arrayKeys[accumulatedParents] === undefined) arrayKeys[accumulatedParents] = pointer.length;
-        currentParent = arrayKeys[accumulatedParents];
-      }
-
-      // create path if it doesn't exist
-      if (pointer[currentParent] === undefined)
-        pointer[currentParent] = isCurrentParentArray(field.parents[idx + 1]) ? [] : {};
-
-      pointer = pointer[currentParent]; // shift pointer to next level
-    }
-
-    pointer[field.key] = field.value; // assign key and value
-    pointer = result; // set pointer back to root
-  }
-
-  return result;
+  return flatValuesToTree(flatValues, Array.isArray(form));
 }
-
-//#endregion
-
-//#region FORM DATA
-
-const dot = (curr: string) => {
-  return curr === '' ? '' : '.';
-}
-
-const arrayIndicator = (nextParent: string | number) => {
-  return typeof nextParent === 'number' ? '[]' : ''
-}
-
-const getPath = (key: string | number, parents: (string | number)[]): string => {
-  let path = '';
-
-  for (let i = 0; i < parents.length; i++) {
-    if (typeof parents[i] === 'number') continue;
-    path += `${dot(path)}${parents[i]}${arrayIndicator(parents[i + 1])}`;
-  }
-
-  return `${path}${dot(path)}${key}`;
-}
-
-const getValuesAsFormData = (form: any, filter?: (value: any, name: string) => boolean) => {
-  const formData = new FormData();
-
-  formForEach(form, (field: any, key: string | number, parents: (string | number)[]) => {
-    if (typeof filter === 'function' && !filter(field.value, String(field.key)))
-      return;
-
-    if (isFile(field.value))
-      formData.append(getPath(key, parents), field.value, field.value.name);
-    else
-      formData.append(getPath(key, parents), field.value);
-  });
-
-  return formData;
-}
-
-//#endregion
 
 //#endregion
 
@@ -196,10 +111,8 @@ const useLazyForm = (shape: any, initialValues?: any) => {
     return formMap(formRef.current, (field: any) => lazyField(field, getValues, _updateState));
   }
 
-  function getValues(params?: { filter?: (value: any, name: string) => boolean, dataType?: 'json' | 'formData' }): any {
-    if (params?.dataType === 'formData')
-      return getValuesAsFormData(formRef.current, params?.filter);
-    return getValuesAsJson(formRef.current, params?.filter);
+  function getValues(filter?: (value: any, name: string) => boolean): any {
+    return getFormValues(formRef.current, filter);
   }
 
   async function validateForm(): Promise<boolean> {
