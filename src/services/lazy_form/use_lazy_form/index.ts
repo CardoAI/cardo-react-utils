@@ -1,6 +1,7 @@
 import React  from 'react';
 import createField from "../field_builder";
-import { lazyField, enhancedArray, enhancedObject, formForEach, formMap, flatValuesToTree, FlatValue } from "../helpers";
+import { lazyField, enhancedArray, enhancedObject, formForEach, formMap, flatValuesToTree } from "../helpers";
+import { FlatValue } from '../helpers/interfaces';
 
 //#region GET VALUES
 

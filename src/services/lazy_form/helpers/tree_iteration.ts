@@ -1,5 +1,6 @@
 import { isField } from "./type_checkers";
 import { cloneEnhancedArr, cloneEnhancedObj } from "./enhanced_data_types";
+import { FlatValue } from "./interfaces";
 
 export const formMap = (ojb: any, fieldCallback: (field: any) => any) => {
   if (isField(ojb)) {
@@ -38,12 +39,6 @@ export const formForEach = (
     for (const propKey in obj)
       formForEach(obj[propKey], fieldCallback, propKey, getUpdatedParents(key, parents));
   }
-}
-
-export interface FlatValue {
-  key: string | number,
-  value: any,
-  parents: (string | number)[]
 }
 
 const isCurrentParentArray = (nextParent: string | number) => {
