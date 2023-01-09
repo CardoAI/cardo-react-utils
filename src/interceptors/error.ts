@@ -103,7 +103,7 @@ const createInterceptor = ({
 
     return client.interceptors.response.use(undefined, (error: any) => {
 
-        if (!!client.isCancel && client.isCancel(error)) return;
+        if (!!client.isCancel && client.isCancel(error)) return Promise.reject(error);
 
         if (isTokenError(error)) {
             if (error.config._retry || error.config._queued) return Promise.reject(error);

@@ -2,17 +2,12 @@ import { useState, useEffect, useRef } from "react";
 import queryString from "query-string";
 import axios, { AxiosRequestConfig } from "axios";
 import { useDidUpdate } from "../hooks/useDidUpdate";
-import { IUseQueryParams, ICreateApiParams, IQueryServices, IUseQuery } from "./interfaces";
+import { IUseQueryParams, ICreateApiParams, IQueryServices } from "./interfaces";
 
-enum REQUEST_STATUS {
-  OK,
-  LOADING,
-  FAILED,
-}
-
+enum REQUEST_STATUS { OK, LOADING, FAILED }
 const INVALIDATE_QUERY_KEY: string = 'invalidate_query_event';
 
-const createUseQuery = (createParams: ICreateApiParams) => (params: IUseQueryParams): IUseQuery => {
+const createUseQuery = (createParams: ICreateApiParams) => (params: IUseQueryParams) => {
 
   const { client, cache, controller, notification, baseURL } = createParams;
 
@@ -54,7 +49,7 @@ const createUseQuery = (createParams: ICreateApiParams) => (params: IUseQueryPar
   }
 
   const isMounted = useRef<boolean>(true);
-  const [data, setData] = useState<any>(() => loadFromCache());
+  const [data, setData] = useState(() => loadFromCache());
   const [queryState, setQueryState] = useState<any>(query);
   const [requestStatus, setRequestStatus] = useState<REQUEST_STATUS>(() => {
     return fetchOnMount ? REQUEST_STATUS.LOADING : REQUEST_STATUS.OK;
@@ -125,14 +120,18 @@ const createUseQuery = (createParams: ICreateApiParams) => (params: IUseQueryPar
     try {
       setRequestStatus(REQUEST_STATUS.LOADING);
       let response: any = isPublic ? await axios.request(options) : await client(options);
+
       if (!isMounted.current) return;
+
       setRequestStatus(REQUEST_STATUS.OK);
       if (onPrepareResponse) response = onPrepareResponse(response);
+
       storeToCache(response);
       setData(response);
+
       if (displayMessages) displaySuccessMessage();
       if (onSuccess) onSuccess(response);
-      return response;
+
     } catch (error) {
       setRequestStatus(REQUEST_STATUS.FAILED);
       if (onError) onError(error);

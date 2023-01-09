@@ -1,5 +1,4 @@
-import React from "react";
-import {AxiosInstance, CancelTokenStatic, Method} from "axios";
+import { AxiosInstance, CancelTokenStatic, Method } from "axios";
 
 interface IClient extends AxiosInstance {
   isCancel?: (param?: any) => boolean,
@@ -57,19 +56,6 @@ interface ICallApiParams extends IApiParams {
   onUploadProgress?: (progressEvent: any) => void,
 }
 
-interface IUseQuery {
-  data: any,
-  query: any,
-  url: string,
-  failed: boolean,
-  loading: boolean,
-  fetch: () => void,
-  cancel: () => void,
-  setData: React.Dispatch<any>,
-  updateQuery: (updates: any) => void,
-  reset: (cancelPrevious: boolean) => void,
-}
-
 interface IQueryServices {
   invalidateQuery: (url: string) => void
 }
@@ -114,7 +100,6 @@ interface ICreateClientStorageParams {
 
 export type {
   IClient,
-  IUseQuery,
   IQueryServices,
   ICallApiParams,
   IUseQueryParams,
