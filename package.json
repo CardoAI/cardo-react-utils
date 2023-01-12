@@ -1,6 +1,6 @@
 {
   "name": "@cardoai/utils",
-  "version": "1.0.62",
+  "version": "1.0.63",
   "description": "Utilities library",
   "bugs": {
     "url": "https://github.com/CardoAI/cardo-react-utils/issues"

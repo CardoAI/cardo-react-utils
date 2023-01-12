@@ -159,6 +159,10 @@ const createUseQuery = (createParams: ICreateApiParams) => (params: IUseQueryPar
     });
   }
 
+  const replaceQuery = (updates: any) => {
+    setQueryState(updates);
+  }
+
   return {
     data,
     fetch,
@@ -166,6 +170,7 @@ const createUseQuery = (createParams: ICreateApiParams) => (params: IUseQueryPar
     cancel,
     setData,
     updateQuery,
+    replaceQuery,
     url: getUrl(),
     query: queryState,
     failed: requestStatus === REQUEST_STATUS.FAILED,
