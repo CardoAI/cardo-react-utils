@@ -8,12 +8,11 @@ interface EventParam {
 const eventSystem = () => {
   let handlers: ((eventParam: EventParam) => void)[] = [];
 
-  const add = (handler: (eventParam: EventParam) => void) => {
+  const subscribe = (handler: (eventParam: EventParam) => void) => {
     handlers.push(handler);
-  }
-
-  const remove = (handler: (eventParam: EventParam) => void) => {
-    handlers = handlers.filter(h => h !== handler);
+    return () => {
+      handlers = handlers.filter(h => h !== handler);
+    };
   }
 
   const fire = (eventParam: EventParam) => {
@@ -21,19 +20,17 @@ const eventSystem = () => {
       handler(eventParam);
   }
 
-  return { add, remove, fire };
+  return { subscribe, fire };
 }
 
 const _eventService = eventSystem();
 
 const useMessageEvent = (type: string, handler: (param?: any) => void) => {
   React.useEffect(() => {
-    const eventHandler = (e: EventParam) => {
+    return _eventService.subscribe((e: EventParam): void => {
       if (e.type !== type) return;
       handler(e.param);
-    }
-    _eventService.add(eventHandler);
-    return () => _eventService.remove(eventHandler);
+    });
   }, []);
 }
 
